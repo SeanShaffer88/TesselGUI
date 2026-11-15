@@ -48,16 +48,13 @@ test('state fills keep text legible and stay distinct from their neighbors', () 
     }
     for (const fill of ['selectedStrong', 'hover', 'pressed', 'readOnlyFill']) {
       assert.ok(ratio(p.foreground, p[fill]) >= 4.5, `${name} foreground on ${fill}`);
-      // Revision 3: in the dark theme these fills carry foreground text; muted
-      // is scoped to the background and surface (see tokens.contrast.mutedRule).
-      if (name !== 'dark') assert.ok(ratio(p.muted, p[fill]) >= 4.5, `${name} muted on ${fill}`);
+      assert.ok(ratio(p.muted, p[fill]) >= 4.5, `${name} muted on ${fill}`);
     }
     assert.ok(ratio(p.hover, p.raised) >= contrast.distinctFillMinimum, `${name} hover vs raised`);
     assert.ok(ratio(p.pressed, p.hover) >= contrast.distinctFillMinimum, `${name} pressed vs hover`);
     assert.ok(ratio(p.selectedStrong, p.selected) >= contrast.distinctFillMinimum, `${name} selectedStrong vs selected`);
-    for (const role of ['selectionIndicator', 'focus']) {
-      const minimum = name === 'dark' ? contrast.accentIndicatorMinimum : 3;
-      assert.ok(ratio(p[role], p.selectedStrong) >= minimum, `${name} ${role} on selectedStrong`);
+    for (const role of ['selectionIndicator', 'focus', 'progress']) {
+      assert.ok(ratio(p[role], p.selectedStrong) >= contrast.accentIndicatorMinimum, `${name} ${role} on selectedStrong`);
     }
   }
 });
@@ -92,9 +89,7 @@ test('high contrast reaches 7:1 for text, semantics, selection and focus on ever
 });
 
 test('syntax colors meet 4.5:1 on the editor surfaces of their theme', () => {
-  // Code renders on the editor background and surface, so syntax is gated on
-  // those two surfaces (the comment color is the muted role, whose own rule
-  // scopes it the same way).
+  // Code renders on the editor background and surface.
   for (const [theme, palette] of [['dark', tokens.color], ['light', tokens.lightColor]]) {
     for (const [role, color] of Object.entries(tokens.syntax[theme])) {
       for (const surface of ['background', 'surface']) {
@@ -144,16 +139,42 @@ test('accent tints exported for every theme keep label contrast', () => {
   }
 });
 
-test('elevation layers use real roles and shadows never replace the edge', () => {
+test('elevation layers use flat fills and defined edges', () => {
   for (const [name, level] of Object.entries(tokens.elevation.levels)) {
     assert.ok(level.fill in tokens.color, `${name} fill`);
     assert.ok(level.edge in tokens.color, `${name} edge`);
-    for (const theme of ['dark', 'light']) assert.match(level.shadow[theme], /^0 \d+px \d+px #[0-9A-F]{4,8}$/i);
+    for (const theme of ['dark', 'light']) {
+      assert.equal(level.shadow[theme], 'none');
+      assert.equal(tokens.material[theme].structuralShadow, 'none');
+    }
   }
   const z = Object.values(tokens.elevation.levels).map(level => level.z);
   assert.equal(new Set(z).size, z.length, 'z indexes are unique');
   assert.ok(tokens.elevation.levels.tooltip.z > tokens.elevation.levels.popup.z);
   assert.ok(tokens.elevation.levels.dialog.z > tokens.elevation.levels.tooltip.z);
+});
+
+test('radial progress exports the same dimensions to all consumers', () => {
+  const { progress } = tokens;
+  assert.equal(progress.shape, 'radial');
+  assert.equal(tokens.signature.progress.shape, progress.shape);
+  assert.deepEqual(dtcg.progress.size.$value, { value: progress.size.value, unit: progress.size.unit });
+  assert.deepEqual(dtcg.progress.stroke.$value, progress.stroke);
+  assert.equal(dtcg.progress.$extensions['com.seanshaffer88.tesselgui.progress'].shape, progress.shape);
+  assert.deepEqual(dtcg.surfaceAliases, tokens.surfaceAliases);
+  for (const [file, size, stroke] of [
+    ['Tessel.xaml', `VgRadialSize">${progress.size.value}<`, `VgRadialStroke">${progress.stroke.value}<`],
+    ['Tessel.Dark.xaml', `VgRadialSize">${progress.size.value}<`, `VgRadialStroke">${progress.stroke.value}<`],
+    ['Tessel.Light.xaml', `VgRadialSize">${progress.size.value}<`, `VgRadialStroke">${progress.stroke.value}<`],
+    ['Tessel.HighContrast.xaml', `VgRadialSize">${progress.size.value}<`, `VgRadialStroke">${progress.stroke.value}<`],
+    ['tessel.rs', `RADIAL_SIZE: f32 = ${progress.size.value}.0;`, `RADIAL_STROKE: f32 = ${progress.stroke.value}.0;`],
+    ['tessel_tokens.gd', `RADIAL_SIZE := ${progress.size.value}\n`, `RADIAL_STROKE := ${progress.stroke.value}\n`],
+    ['Tessel.slint', `radial-size: ${progress.size.value}px;`, `radial-stroke: ${progress.stroke.value}px;`],
+  ]) {
+    const output = read(`../dist/${file}`);
+    assert.ok(output.includes(size), file);
+    assert.ok(output.includes(stroke), file);
+  }
 });
 
 test('focus rings meet the minimum width and every class has a style', () => {
@@ -201,8 +222,8 @@ test('state templates name every part and keep loading free of layout shift', ()
   assert.ok(states.offline.banner in tokens.color);
 });
 
-test('every export carries the new roles and the release version', () => {
-  assert.match(tokens.version, /^\d+\.\d+\.\d+$/);
+test('every export carries the new roles and the source package version', () => {
+  assert.match(tokens.version, /^\d+\.\d+\.\d+(?:-dev\.[1-9]\d*)?$/);
   assert.equal(dtcg.$version, tokens.version);
   for (const theme of ['dark', 'light', 'highContrast']) {
     assert.deepEqual(Object.keys(dtcg.color[theme]), Object.keys(tokens.color));
@@ -256,8 +277,8 @@ test('layout presets, docking and density rules agree with the workspace tokens'
   assert.deepEqual(Object.keys(layouts.presets).filter(key => key !== 'rule'), ['focus', 'review', 'wide']);
   for (const [name, preset] of Object.entries(layouts.presets)) {
     if (name === 'rule') continue;
-    const [low, high] = preset.dominantPercent;
-    assert.ok(low >= 55 && high <= 100 && low < high, `${name} dominant share`);
+    assert.ok(preset.regions, `${name} declares its regions`);
+    assert.ok(!('dominantPercent' in preset), `${name} sizes from available space`);
   }
   assert.equal(layouts.docking.minPanel.width, workspace.panels.minimumWidth);
   assert.equal(layouts.docking.minPanel.height, workspace.panels.minimumHeight);

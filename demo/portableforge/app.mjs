@@ -1,9 +1,12 @@
 import { createState, reviewPage, transition } from './state.mjs';
+import { drawerEdge } from '../patterns.mjs';
 
 const get = id => document.getElementById(id);
 const form = get('stage-form');
 const primary = get('step-primary');
 const dialog = get('path-dialog');
+const displayDrawer = get('display-settings-drawer');
+const displayOpener = get('show-display-settings');
 const settings = {
   'text-size': ['100', '125', '150'],
   theme: ['dark', 'light'],
@@ -74,12 +77,13 @@ function renderStatus() {
     if (state.error === 'setupMismatch') words = [words[0], state.fixture.labels.mismatch];
   } else if (state.pending) {
     kind = 'progress';
-    words = [state.pending === 'capture' ? 'Preparing sample findings' : 'Checking the saved sample setup', 'Keep this page open.'];
+    words = [state.pending === 'capture' ? 'Preparing sample findings' : 'Checking the saved sample setup', 'Completion percentage unavailable.'];
   } else if (state.stage === 'rebuild') {
     kind = 'success';
     words = ['Profile saved for this session', 'Choose a sample setup to check the rebuild.'];
   }
   box.dataset.kind = kind;
+  get('operation-progress').hidden = !state.pending;
   if (title.textContent !== words[0]) title.textContent = words[0];
   if (message.textContent !== words[1]) message.textContent = words[1];
   message.lang = state.error === 'setupMismatch' ? state.fixture.locale : 'en';
@@ -245,6 +249,15 @@ dialog.addEventListener('keydown', event => {
 });
 get('step-back').addEventListener('click', () => send({ type: 'back' }));
 get('step-reset').addEventListener('click', () => send({ type: 'reset' }));
+displayOpener.addEventListener('click', () => {
+  displayDrawer.dataset.edge = drawerEdge();
+  displayDrawer.showModal();
+  displayOpener.setAttribute('aria-expanded', 'true');
+});
+displayDrawer.addEventListener('close', () => {
+  displayOpener.setAttribute('aria-expanded', 'false');
+  displayOpener.focus();
+});
 
 let stored;
 try { stored = JSON.parse(localStorage.getItem(settingsKey)); } catch {}

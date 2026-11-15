@@ -6,13 +6,21 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>PortableForge workflow reference · Tessel</title>
   <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../patterns.css">
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.mjs"></script>
 </head>
 <body>
   <header class="shell-header" data-fit>
-    <a class="brand" href="../../">Tessel <span> / PortableForge</span></a>
-    <div class="display-settings" role="group" aria-label="Display preferences">
+    <a class="brand" href="../../">TesselGUI <span> / PortableForge</span></a>
+    <button id="show-display-settings" type="button" aria-controls="display-settings-drawer" aria-expanded="false">Display settings</button>
+  </header>
+  <dialog id="display-settings-drawer" class="edge-drawer" aria-labelledby="display-settings-title">
+    <header class="drawer-heading">
+      <h2 id="display-settings-title">Display settings</h2>
+      <form method="dialog"><button id="close-display-settings" type="submit" autofocus>Close</button></form>
+    </header>
+    <div class="display-settings">
       <label>Text size
         <select id="text-size"><option value="100">100%</option><option value="125">125%</option><option value="150">150%</option></select>
       </label>
@@ -23,7 +31,7 @@
         <select id="texture"><option value="grid">Fine grid</option><option value="flat">Flat</option></select>
       </label>
     </div>
-  </header>
+  </dialog>
   <main id="workspace" class="workspace">
     <section class="step-intro" aria-labelledby="step-heading" data-fit>
       <p id="step-count" class="eyebrow"></p>
@@ -33,9 +41,12 @@
     <form id="stage-form" novalidate data-fit></form>
     <noscript><p>Enable JavaScript to try the sample workflow.</p></noscript>
     <footer class="step-footer" data-fit>
-      <div id="status" class="status" role="status" aria-atomic="true" tabindex="-1">
-        <strong id="status-title"></strong>
-        <span id="status-message"></span>
+      <div class="operation-status">
+        <div id="operation-progress" class="radial-progress" role="progressbar" aria-labelledby="status-title" data-indeterminate hidden></div>
+        <div id="status" class="status" role="status" aria-atomic="true" tabindex="-1">
+          <strong id="status-title"></strong>
+          <span id="status-message"></span>
+        </div>
       </div>
       <div class="actions">
         <button id="step-back" type="button" hidden>Back</button>

@@ -1,6 +1,6 @@
 # Tessel quick reference · revision 3
 
-Use this page for the published Revision 3 reference. Follow the master specification for new Revision 4 implementations. [Revision 4 master specification](master-specification.md)
+This page records the historical Revision 3 quick reference. Apply the current master specification to new work. [Revision 4 master specification](master-specification.md)
 
 One page. Full rules: [design guidelines](design-guidelines.md). Numbers: [tokens.json](tokens.json).
 

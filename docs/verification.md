@@ -1,4 +1,12 @@
-# Verification record · revision 2 (updated for 1.4.0)
+# Verification record
+
+## Current design standard · Revision 4
+
+- **Token verification.** The focused Node suites for token contrast, export parity and the contrast checker passed 42 tests. The generated outputs matched the source with `node tools/build-tokens.mjs --check`. The suites check both sRGB and OKLCH dark and light palettes, the High Contrast palette, forced-color mappings, and radial dimensions. [Measured ratios](materials.md#measured-palette-contract)
+- **Package consumption.** An independent project imported the packed npm export offline. An independent Rust project compiled and ran against the packed crate offline. The standalone Rust export compiled with `rustc --edition 2021 --crate-type lib`, and all four XAML exports parsed as XML.
+- **Runtime scope.** Token and package checks cover the data and its generated interfaces. Native application rendering, screen-reader output, and physical display and DPI behavior require verification in each adopting app.
+
+The records below apply to their stated revisions and test environments.
 
 ## Verification
 

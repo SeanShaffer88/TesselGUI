@@ -1,0 +1,89 @@
+.tessel-grid {
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: var(--grid-size, 24px) var(--grid-size, 24px);
+}
+
+.radial-progress {
+  --progress-arc: calc(var(--progress-value, 0) * 1%);
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  inline-size: var(--radial-size, 3rem);
+  aspect-ratio: 1;
+  color: var(--fg);
+  font-size: .75rem;
+  line-height: 1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.radial-progress::before,
+.radial-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.radial-progress::after {
+  inset: calc((var(--radial-stroke, 3px) - 1px) / 2);
+  border: 1px solid var(--border);
+}
+.radial-progress::before {
+  z-index: 1;
+  background: conic-gradient(var(--progress) 0 var(--progress-arc), transparent 0);
+  mask-image: radial-gradient(farthest-side,
+    transparent calc(100% - var(--radial-stroke, 3px) - 1px), #000 calc(100% - var(--radial-stroke, 3px)));
+}
+.radial-progress__value { position: relative; }
+.radial-progress[data-indeterminate] { --progress-arc: 25%; }
+@media (prefers-reduced-motion: no-preference) {
+  .radial-progress[data-indeterminate]::before { animation: radial-turn 1.2s linear infinite; }
+}
+@keyframes radial-turn { to { transform: rotate(1turn); } }
+
+.edge-drawer {
+  --drawer-travel-x: -1.25rem;
+  --drawer-travel-y: 0px;
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  padding: 0;
+  inline-size: min(var(--drawer-size, 30rem), 100%);
+  max-inline-size: 100%;
+  block-size: 100dvh;
+  max-block-size: 100dvh;
+  border-radius: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.edge-drawer[data-edge="left"] { --drawer-travel-x: 1.25rem; inset: 0 auto 0 0; }
+.edge-drawer[data-edge="top"],
+.edge-drawer[data-edge="bottom"] {
+  --drawer-travel-x: 0px;
+  inline-size: 100%;
+  block-size: auto;
+  max-block-size: 85dvh;
+}
+.edge-drawer[data-edge="top"] { --drawer-travel-y: 1.25rem; inset: 0 0 auto; }
+.edge-drawer[data-edge="bottom"] { --drawer-travel-y: -1.25rem; inset: auto 0 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .edge-drawer[open] { animation: drawer-enter var(--motion-drawer, 180ms) var(--ease-standard, ease-out); }
+}
+@keyframes drawer-enter {
+  from { transform: translate(var(--drawer-travel-x), var(--drawer-travel-y)); opacity: .85; }
+  to { transform: translate(0, 0); opacity: 1; }
+}
+
+@media (forced-colors: active) {
+  .tessel-grid { background-image: none; }
+  .radial-progress::before {
+    forced-color-adjust: none;
+    background: conic-gradient(Highlight 0 var(--progress-arc), transparent 0);
+  }
+  .radial-progress::after {
+    forced-color-adjust: none;
+    border-color: GrayText;
+  }
+}

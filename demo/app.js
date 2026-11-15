@@ -1,5 +1,6 @@
 import { defaults, readPreferences, constrainWidth, transition } from './state.mjs';
 import { installCommandPalette } from './palette.mjs';
+import { drawerEdge } from './patterns.mjs';
 const $ = id => document.getElementById(id);
 const storageKey = 'tessel.display.v1';
 let prefs;
@@ -10,6 +11,8 @@ const narrow = matchMedia('(max-width: 900px)');
 const pinFits = matchMedia('(min-width: 1640px)');
 const drawer = $('details-dialog');
 const inspector = $('inspector');
+const inspectorSlot = $('inspector-slot');
+const workArea = $('work-area');
 const settings = $('settings');
 const settingsDialog = $('settings-dialog');
 let settingsOpen = false;
@@ -34,7 +37,8 @@ function applyDisplay() {
 }
 function setWidth(value) {
   prefs.width = constrainWidth(value);
-  $('work-area').style.setProperty('--inspector-width', `${prefs.width}px`);
+  workArea.style.setProperty('--inspector-width', `${prefs.width}px`);
+  drawer.style.setProperty('--drawer-size', `${prefs.width}px`);
   $('resize').setAttribute('aria-valuenow', prefs.width);
   $('resize').setAttribute('aria-valuetext', `${prefs.width} pixels`);
   if (!widthDirty) $('inspector-width').value = prefs.width;
@@ -44,46 +48,80 @@ function placeInspector() {
   const focused = inspector.contains(document.activeElement) || document.activeElement === $('resize')
     ? document.activeElement : null;
   if (drawer.open) drawer.close();
-  $('inspector-slot').append(inspector);
-  $('close-details').textContent = narrow.matches ? 'Close details' : 'Collapse';
-  const collapsed = !narrow.matches && prefs.collapsed;
-  $('work-area').classList.toggle('collapsed', collapsed);
-  $('inspector-slot').hidden = collapsed;
-  $('resize').hidden = narrow.matches || collapsed;
-  $('show-details').setAttribute('aria-expanded', String(!narrow.matches && !collapsed));
-  if (focused) (narrow.matches || collapsed ? $('show-details') : focused).focus();
+  if (inspector.parentElement !== inspectorSlot) inspectorSlot.append(inspector);
+  const docked = !narrow.matches && !prefs.collapsed;
+  workArea.classList.toggle('details-docked', docked);
+  if (docked) workArea.dataset.detailsEdge = drawerEdge({ sidesOnly:true });
+  inspectorSlot.hidden = !docked;
+  $('resize').hidden = !docked;
+  $('show-details').setAttribute('aria-expanded', String(docked));
+  if (narrow.matches) $('show-details').setAttribute('aria-haspopup', 'dialog');
+  else $('show-details').removeAttribute('aria-haspopup');
+  if (focused) (docked ? focused : $('show-details')).focus();
+}
+function openDetailsDrawer() {
+  closeSettings(false);
+  $('drawer-slot').append(inspector);
+  workArea.classList.remove('details-docked');
+  inspectorSlot.hidden = true;
+  $('resize').hidden = true;
+  $('show-details').setAttribute('aria-expanded', 'true');
+  $('show-details').setAttribute('aria-haspopup', 'dialog');
+  drawer.dataset.edge = drawerEdge();
+  drawer.showModal();
 }
 function showDetails(trigger = $('show-details')) {
   detailsTrigger = trigger;
   if (narrow.matches) {
-    closeSettings(false);
-    $('drawer-slot').append(inspector);
-    drawer.showModal();
-    $('show-details').setAttribute('aria-expanded', 'true');
-    $('close-details').focus();
+    if (!drawer.open) openDetailsDrawer();
   } else {
     prefs.collapsed = false;
     placeInspector();
     save();
-    $('close-details').focus();
   }
+  $('close-details').focus();
 }
-$('show-details').addEventListener('click', () => showDetails());
-$('close-details').addEventListener('click', () => {
-  if (drawer.open) closeDetails();
-  else {
-    prefs.collapsed = true; placeInspector(); save(); $('show-details').focus();
-  }
+$('show-details').addEventListener('click', () => {
+  if ($('show-details').getAttribute('aria-expanded') === 'true') closeDetails();
+  else showDetails();
 });
+$('close-details').addEventListener('click', () => closeDetails());
 function closeDetails(restoreFocus = true) {
-  if (!drawer.open) return;
-  drawer.close();
-  $('inspector-slot').append(inspector);
-  $('show-details').setAttribute('aria-expanded', String(!narrow.matches && !prefs.collapsed));
+  if (drawer.open) {
+    drawer.close();
+  } else if (!inspectorSlot.hidden) {
+    prefs.collapsed = true;
+    save();
+  } else return;
+  placeInspector();
   if (restoreFocus) (detailsTrigger.isConnected ? detailsTrigger : $('show-details')).focus();
 }
 drawer.addEventListener('cancel', event => { event.preventDefault(); closeDetails(); });
-narrow.addEventListener('change', () => { placeInspector(); placeSettings(); });
+function dismissDockedDetails(event) {
+  if (event.key !== 'Escape' || drawer.open || inspectorSlot.hidden) return;
+  event.preventDefault();
+  closeDetails();
+}
+inspector.addEventListener('keydown', dismissDockedDetails);
+$('resize').addEventListener('keydown', dismissDockedDetails);
+narrow.addEventListener('change', () => {
+  const focused = document.activeElement;
+  if (narrow.matches && inspector.contains(focused)) {
+    openDetailsDrawer();
+    focused.focus();
+  } else {
+    if (!narrow.matches && drawer.open) {
+      prefs.collapsed = false;
+      save();
+    }
+    placeInspector();
+  }
+  if (settingsOpen) placeSettings();
+});
+window.addEventListener('resize', () => {
+  if (drawer.open) drawer.dataset.edge = drawerEdge();
+  if (settingsDialog.open) settingsDialog.dataset.edge = drawerEdge();
+});
 
 function renderWidthDraft() {
   $('apply-width').disabled = !widthDirty;
@@ -155,12 +193,15 @@ function placeSettings() {
     $('settings-mode').textContent = 'Your pin preference resumes when the workspace is wider.';
   }
   $('show-settings').setAttribute('aria-expanded', String(settingsOpen));
+  if (prefs.settingsPinned && canPin) $('show-settings').removeAttribute('aria-haspopup');
+  else $('show-settings').setAttribute('aria-haspopup', 'dialog');
   if (settingsOpen && modal) {
-    closeDetails(false);
+    if (drawer.open) closeDetails(false);
     $('settings-modal-slot').append(settings);
     // Reset confirmation temporarily owns the modal layer.
     if (!$('reset-dialog').open) {
       if ($('command-palette').open) $('command-palette').close();
+      settingsDialog.dataset.edge = drawerEdge();
       settingsDialog.showModal();
     }
   }
@@ -213,28 +254,31 @@ let drag = null;
 const separator = $('resize');
 separator.addEventListener('pointerdown', event => {
   if (event.button !== 0 || narrow.matches) return;
-  drag = {id:event.pointerId, x:event.clientX, width:prefs.width};
+  drag = {id:event.pointerId, x:event.clientX, width:prefs.width,
+    direction:workArea.dataset.detailsEdge === 'left' ? 1 : -1};
   separator.setPointerCapture(event.pointerId); separator.focus(); event.preventDefault();
 });
 separator.addEventListener('pointermove', event => {
-  if (drag && event.pointerId === drag.id) setWidth(drag.width + drag.x - event.clientX);
+  if (drag && event.pointerId === drag.id) setWidth(drag.width + (event.clientX - drag.x) * drag.direction);
 });
 for (const type of ['pointerup','pointercancel','lostpointercapture']) separator.addEventListener(type, () => {
   if (drag) { drag = null; save(); }
 });
 separator.addEventListener('keydown', event => {
-  const values = {ArrowLeft:prefs.width + 10, ArrowRight:prefs.width - 10, Home:240, End:420};
+  const step = workArea.dataset.detailsEdge === 'left' ? 10 : -10;
+  const values = {ArrowLeft:prefs.width - step, ArrowRight:prefs.width + step, Home:240, End:420};
   if (Object.hasOwn(values, event.key)) { event.preventDefault(); setWidth(values[event.key]); save(); }
 });
 
 function renderJob() {
   const focusedOperation = [$('pause'), $('cancel')].find(control => control === document.activeElement);
   const status = job.status[0].toUpperCase() + job.status.slice(1);
-  $('job-status').textContent = status + (['completed','cancelled'].includes(job.status) ? ' · No work running' : '');
+  const message = status + (['completed','cancelled'].includes(job.status) ? ' · No work running' : '');
+  if ($('job-status').textContent !== message) $('job-status').textContent = message;
   $('job-status').classList.toggle('success', job.status === 'completed');
-  $('job-progress').value = job.progress;
-  $('job-progress').textContent = `${job.progress}%`;
-  $('percentage').value = `${job.progress}%`;
+  $('job-progress').setAttribute('aria-valuenow', job.progress);
+  $('job-progress').style.setProperty('--progress-value', job.progress);
+  $('percentage').textContent = `${job.progress}%`;
   const active = ['running','paused'].includes(job.status);
   $('start').disabled = active;
   $('pause').disabled = !active;
@@ -246,8 +290,8 @@ function renderJob() {
 }
 function dispatch(action) {
   job = transition(job, action);
-  if (timer !== null) { clearInterval(timer); timer = null; }
-  if (job.status === 'running') timer = setInterval(() => dispatch('tick'), 600);
+  if (job.status === 'running' && timer === null) timer = setInterval(() => dispatch('tick'), 600);
+  if (job.status !== 'running' && timer !== null) { clearInterval(timer); timer = null; }
   renderJob();
 }
 $('start').addEventListener('click', () => { dispatch('start'); $('pause').focus(); });
@@ -279,6 +323,7 @@ function showExample() {
   $('validation-example').hidden = value !== 'normal'; $('recovery-example').hidden = value === 'normal';
   $('feedback').textContent = '';
   $('recovery-example').dataset.state = value;
+  $('recovery-example').classList.toggle('tessel-grid', value === 'empty');
   if (value !== 'normal') {
     const [title,copy,action] = recovery[value];
     $('recovery-title').textContent = title; $('recovery-copy').textContent = copy; $('retry').textContent = action;

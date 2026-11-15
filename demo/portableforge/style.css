@@ -1,7 +1,7 @@
 :root[data-text-size="125"] { font-size: 125%; }
 :root[data-text-size="150"] { font-size: 150%; }
 *, *::before, *::after { box-sizing: border-box; }
-html { background: var(--bg); color: var(--fg); }
+html { background: var(--surface-1); color: var(--fg); }
 body {
   margin: 0;
   min-block-size: 100vh;
@@ -41,15 +41,14 @@ button:disabled { cursor: default; opacity: .65; }
 input:not([type="checkbox"]), textarea { background: var(--bg); }
 button.primary {
   background: var(--action);
-  border-color: var(--action);
   color: var(--action-foreground);
   font-weight: 600;
 }
-button.primary:hover:enabled { background: var(--action-hover); border-color: var(--action-hover); }
-button.primary:active:enabled { background: var(--action-pressed); border-color: var(--action-pressed); }
+button.primary:hover:enabled { background: var(--action-hover); }
+button.primary:active:enabled { background: var(--action-pressed); }
 
 .shell-header, .workspace {
-  max-inline-size: 54rem;
+  max-inline-size: 68rem;
   margin-inline: auto;
 }
 .shell-header {
@@ -58,27 +57,25 @@ button.primary:active:enabled { background: var(--action-pressed); border-color:
   align-items: center;
   justify-content: space-between;
   gap: var(--control-gap);
-  padding: 6px 10px;
-  border-block-start: 3px solid var(--accent);
-  background: var(--surface);
+  padding: 8px 12px;
+  border: 1px solid var(--edge);
+  background: var(--surface-3);
 }
 .brand { font-weight: 600; }
 .brand span { color: var(--muted); font-weight: 400; }
 .display-settings {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--control-gap);
-  font-size: .78rem;
+  display: grid;
+  gap: 12px;
+  font-size: .875rem;
 }
-.display-settings label { display: flex; align-items: center; gap: 4px; }
+.display-settings label { display: grid; gap: 4px; }
 .workspace {
   display: grid;
   gap: 8px;
-  padding: 9px 10px;
-  border-block: 1px solid var(--material-rim);
-  background: var(--surface);
-  box-shadow: var(--material-shadow);
+  padding: 12px;
+  border: 1px solid var(--edge);
+  border-block-start: 0;
+  background: var(--surface-2);
 }
 .step-intro, #stage-form, .step-footer { display: grid; gap: 6px; min-inline-size: 0; }
 .eyebrow {
@@ -128,7 +125,7 @@ button.primary:active:enabled { background: var(--action-pressed); border-color:
   display: grid;
   gap: 5px;
   padding: 8px 10px;
-  background: var(--raised);
+  background: var(--surface-3);
   border-inline-start: 3px solid var(--selection-indicator);
 }
 .finding[data-kind="warning"] { border-inline-start-color: var(--warning); }
@@ -140,7 +137,9 @@ button.primary:active:enabled { background: var(--action-pressed); border-color:
   color: var(--muted);
   white-space: pre-wrap;
 }
-.step-footer { border-block-start: 1px solid var(--material-rim); padding-block-start: 6px; }
+.step-footer { border-block-start: 1px solid var(--edge); padding-block-start: 8px; }
+.operation-status { display: flex; gap: 8px; align-items: center; }
+.operation-status:has(.radial-progress[hidden]) { display: block; }
 .status { display: grid; gap: 2px; font-size: .86rem; }
 .status > :empty { display: none; }
 .status[data-kind="progress"] { color: var(--info); }
@@ -162,12 +161,13 @@ dialog {
   margin: auto;
   border: 1px solid var(--border);
   padding: 14px;
-  background: var(--surface);
+  background: var(--surface-3);
   color: var(--fg);
 }
-dialog::backdrop { background: #0009; }
+dialog::backdrop { background: var(--scrim); }
 dialog > * + * { margin-block-start: 8px; }
 .dialog-actions { justify-content: end; }
+.drawer-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 
 @media (max-width: 380px) {
   .field-row { display: grid; }
@@ -181,7 +181,6 @@ dialog > * + * { margin-block-start: 8px; }
 }
 @media (forced-colors: active) {
   :root[data-theme][data-texture] body { background-image: none; }
-  .workspace { box-shadow: none; }
   a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
   textarea:focus-visible, [tabindex="-1"]:focus-visible { outline-color: Highlight; }
 }

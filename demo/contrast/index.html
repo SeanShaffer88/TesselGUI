@@ -2,27 +2,35 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
   <title>Contrast checker · TesselGUI</title>
-  <link rel="icon" href="data:,"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="style.css">
+  <link rel="icon" href="../icons.svg"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../patterns.css"><link rel="stylesheet" href="style.css">
   <script type="module" src="app.mjs"></script>
 </head>
 <body>
 <a class="skip" href="#results">Skip to results</a>
-<header><div><span class="brand">TesselGUI ∷</span> <span class="muted">Contrast checker</span></div><a href="../">Workspace reference</a></header>
+<header class="page-header"><div><span class="brand">TesselGUI</span> <span class="muted">/ Contrast checker</span></div><a href="../">Workspace reference</a></header>
 <main>
   <h1>Contrast checker</h1>
-  <p class="muted">Edit any role and see every pairing the standard checks, live. Ratios use WCAG relative luminance. Nothing is saved or sent.</p>
+  <p class="muted">Edit the palette and check its role pairings with WCAG relative luminance. Edits stay in this tab.</p>
   <div class="toolbar" role="group" aria-label="Checker controls">
     <label>Theme <select id="theme"><option value="dark">Dark</option><option value="light">Light</option><option value="highContrast">High Contrast</option></select></label>
-    <button id="reset" type="button">Reset to tokens</button>
+    <button id="show-roles" type="button" aria-controls="roles-drawer" aria-expanded="false">Edit roles</button>
     <button id="copy" type="button">Copy edited palette</button>
     <button id="only-failures" type="button" aria-pressed="false">Show failures only</button>
   </div>
+  <p id="copy-status" class="muted copy-status" role="status"></p>
   <p id="summary" role="status" class="summary"></p>
-  <div class="layout">
-    <section aria-labelledby="roles-h"><h2 id="roles-h">Roles</h2><ul id="roles" class="roles"></ul></section>
-    <section id="results" aria-labelledby="results-h" tabindex="-1"><h2 id="results-h">Results</h2><div id="tables"></div></section>
-  </div>
+  <section id="results" class="tessel-grid" aria-labelledby="results-h" tabindex="-1"><h2 id="results-h">Results</h2><div id="tables"></div></section>
 </main>
+<dialog id="roles-drawer" class="edge-drawer" aria-labelledby="roles-h">
+  <header class="drawer-heading">
+    <h2 id="roles-h">Edit roles</h2>
+    <form method="dialog"><button id="close-roles" type="submit" autofocus>Close</button></form>
+  </header>
+  <p id="drawer-summary" class="summary" role="status"></p>
+  <button id="reset" type="button">Reset to tokens</button>
+  <ul id="roles" class="roles"></ul>
+</dialog>
 </body>
 </html>

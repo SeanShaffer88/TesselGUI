@@ -4,7 +4,9 @@ Releases use [Semantic Versioning](https://semver.org/) for the documented token
 
 ## Unreleased
 
-- Adopted the Revision 4 design standard with a High Contrast VS Code baseline, adaptive layouts, edge drawers, and radial progress. Added a static design mockup. The published demos and token exports represent Revision 3. [Revision 4 master specification](docs/master-specification.md)
+- Adopted the Revision 4 design standard with a High Contrast VS Code baseline, adaptive layouts, edge drawers, and radial progress. [Revision 4 master specification](docs/master-specification.md)
+- The web references use radial progress and a flat semantic surface treatment. The workspace adapts to available space and keeps secondary tools in contextual drawers.
+- Token exports include radial dimensions and distinct default dark colors for focus, selection and progress. Saved layout metadata now describes adaptive regions. Shadow properties resolve to `none`. The generated package snapshots use the development source version `3.0.0-dev.1`. [Migration notes](docs/migration.md)
 
 ## 2.0.0 · 2026-11-13
 

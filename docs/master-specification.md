@@ -2,7 +2,7 @@
 
 **Revision 4 · Current design standard**
 
-Apply the requirements below when implementing Revision 4. They take precedence over conflicting Revision 3 guidance, including percentage-based pane widths, asymmetrical alignment as the default, and segmented progress. The published demos, token exports, and detailed reference guides describe Revision 3. [Revision 3 design guidelines](design-guidelines.md)
+Apply these requirements to new implementations. The workspace demonstrates the standard within a browser. Native applications should follow the full screen-edge rule using their platform's work-area information. Earlier designs remain available in the Revision 3 reference. [Workspace](../demo/) · [Current tokens](tokens.json) · [Revision 3 design guidelines](design-guidelines.md)
 
 ## 1. Core Identity & Aesthetic
 

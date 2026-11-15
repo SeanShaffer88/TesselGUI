@@ -12,7 +12,7 @@ Licensing is split by content type:
 
 ## Reference screenshots
 
-[tessel-workspace.png](assets/tessel-workspace.png) and [tessel-categories.png](assets/tessel-categories.png) are screenshots of the running reference demos (dark theme, headless Chrome). They contain only fictional data and original layouts.
+[tessel-workspace.png](assets/tessel-workspace.png) shows the running Revision 4 workspace in dark mode, with the simulated preview paused at 35%. It was captured at 1440 × 960 in headless Chrome on November 14, 2026 with [the workspace verifier](tools/verify-workspace.mjs). [tessel-categories.png](assets/tessel-categories.png) shows the category reference in dark mode. Both screenshots contain fictional data and original layouts.
 
 ## Original assets
 

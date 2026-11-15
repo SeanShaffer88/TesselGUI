@@ -1,6 +1,6 @@
-# Revision 3 materials
+# Revision 4 materials
 
-Opaque matte compartments use three dark-charcoal surface levels. The editor background uses `--surface-1` (`#1B1B1D`), structural panels use `--surface-2`, and raised surfaces and row hover use `--surface-3` (`#232326`). Selected rows, the current navigation item and secondary control hover use `--surface-4` (`selected`). The levels step gently (about 25% and 22% relative luminance), and the 1px `--edge` border (`#43434A`) carries structure as well. A 1px `--edge` border separates compartments and table rows. Fine rims and shallow field insets keep the tactile treatment. [Reusable CSS tokens](../demo/tokens.css) · [Machine-readable values](tokens.json)
+Use four semantic levels. The editor background uses `--surface-1` (`#1B1B1D`), the secondary base uses `--surface-2` (`#1F1F22`), panels use `--surface-3` (`#232326`), and selected regions use `--surface-4` (`#2A2A2F`). A 1px `--edge` border (`#43434A`) separates compartments and table rows. Solid fills and edges give controls and floating layers a flat finish. [Reusable CSS tokens](../demo/tokens.css) · [Machine-readable values](tokens.json)
 
 The primary action is a Carmine fill in the default scheme (`--action`, `#960018`) with a white label (`--action-foreground`). A lighter hover fill and a deeper pressed fill show feedback while keeping the control in place. The deep fill is bounded by a 1px rim in `--border`, so it never relies on fill-to-surface contrast alone; in the light theme it also reaches 3:1 against every surface. Secondary controls use `--raised` with a `--border`. Disabled controls use Surface, a muted label and a dashed boundary. Focus and selection use dedicated indicators. Error, warning, success and information keep their own semantic colors and labels.
 
@@ -10,16 +10,17 @@ Body typography starts at 16 CSS pixels under default browser settings and follo
 
 <img src="../assets/tessel-accent.svg" alt="Deep accent: Carmine #960018 in both themes" width="96" height="32">
 
-The accent system plays four roles. In revision 3 they share one color family — Carmine — and are told apart by geometry and pairing, not by hue.
+The Carmine family distinguishes the primary action, focus, selection and progress. Pair these colors with an outline, marker and fill, or a progress label and measured value.
 
 | Role | CSS token | Dark | Light | Application |
 | --- | --- | --- | --- | --- |
 | Primary action | `--action` · `--action-hover` · `--action-pressed` | `#960018` · `#A81226` · `#7E0014` | `#960018` · `#7E0014` · `#660011` | The one primary action in a view. Label in `--action-foreground` (`#FFFFFF`, 9.09:1 at rest). The dark fill carries a 1px `--border` rim; the light fill reaches 3:1 on every surface on its own |
 | Deep accent | `--accent` | `#960018` | `#960018` | Large tinted regions, such as a selected row band. Always with a marker and a label. Label in `--accent-foreground` measures 7.12:1 (dark) and 9.09:1 (light) |
-| Selection | `--selection-indicator` | `#960018` | `#960018` | Thin Carmine edge on the selected item, the active-tab underline and the active-region rule. In the dark theme it is never the only cue: the fill also changes |
-| Focus | `--focus` | `#960018` | `#C8102E` | Thin Carmine outline with a 2px offset in the dark theme; a brighter Carmine in the light theme |
+| Selection | `--selection-indicator` | `#DF485D` | `#960018` | Selected-item edge, active-tab underline and active-region rule. Include a fill, label or programmatic state |
+| Focus | `--focus` | `#FB8A97` | `#C8102E` | Distinct outline using the focus ring geometry |
+| Radial progress | `--progress` | `#DF485D` | `#960018` | Circular arc with an operation name and visible percentage when known |
 
-Use at most one accent element per region. Do not use the brand accent for data series, syntax colors or decoration.
+Reserve brand accent roles for the interaction states above. Syntax, data series and status messages use their own roles.
 
 ### Other roles
 
@@ -36,10 +37,11 @@ Use at most one accent element per region. Do not use the brand accent for data 
 
 ### Appearance presets
 
-Keep theme and accent color as independent choices. A preset recolors the deep accent, the primary action, the selection marker and the focus outline together, so a Blue or Teal product has no Carmine buttons. Carmine uses the base theme values. The GitHub preset keeps the revision 2 scheme. Graphite is a neutral preset for color-critical work: its action, selection, focus and accent carry no visible tint. Semantic colors, edges and surfaces do not change.
+Keep theme and accent color as independent choices. A preset recolors the deep accent, primary action, selection marker, focus outline and radial arc together. The arc takes the preset's selection color. Graphite supplies neutral accents for color-critical work.
+
 | Preset | Dark action | Dark selection | Dark focus | Light action | Light selection | Light focus |
 | --- | --- | --- | --- | --- | --- | --- |
-| Carmine (default) | `#960018` | `#960018` | `#960018` | `#960018` | `#960018` | `#C8102E` |
+| Carmine (default) | `#960018` | `#DF485D` | `#FB8A97` | `#960018` | `#960018` | `#C8102E` |
 | GitHub | `#1A7F37` | `#409EFF` | `#71B7FF` | `#1A7F37` | `#0969DA` | `#0550AE` |
 | Crimson | `#D02946` | `#DD294B` | `#FF4D73` | `#B40234` | `#9E1534` | `#D61F45` |
 | Blue | `#036DCD` | `#5FA8FF` | `#ACD1FF` | `#0059AA` | `#1558A6` | `#327AD1` |
@@ -72,25 +74,25 @@ Status fills pair with their text role: `info` on `infoFill`, `warning` on `warn
 
 ## High Contrast theme
 
-A fourth theme for low vision, bright rooms and long sessions. It keeps the dark surfaces and raises everything else: text is `#FFFFFF` and `#F0F3F6`, borders are `#F0F3F6`, edges are `#9EA7B3` (at least 5:1), the selection marker is `#79C0FF`, focus is `#FFD33D`, and every text, status, selection and focus color reaches 7:1 on every surface. Set `data-theme="high-contrast"`. Operating-system contrast themes still win: in forced colors every role maps to a system color.
+The optional High Contrast theme retains its own palette. Text is `#FFFFFF` and `#F0F3F6`, borders are `#F0F3F6`, edges are `#9EA7B3` (at least 5:1 on the three base surfaces), the selection marker is `#79C0FF`, and focus is `#FFD33D`. Text, status, selection, focus and progress reach 7:1 on the four standard surfaces. Set `data-theme="high-contrast"`. Forced colors map the palette roles to system colors.
 
 The primary action cannot reach 7:1 for its label and 3:1 for its fill on black at once, so in High Contrast it keeps a deep green fill (`#0A5A23`, label 8.4:1) and gains a 2px `border` outline. The deep accent is `#0A2A5E`. High Contrast has no OKLCH encoding and reuses the dark syntax colors, which reach 4.5:1 on its background and surface.
 
 ## Syntax colors
 
-Code and log text has its own set so it never borrows the brand accent or a status color by accident. Roles: `keyword`, `string`, `function`, `constant`, `comment`, `variable`, `tag`, `typeName`. Revision 3 syntax is muted with moderate distinction, drawn from the interface palette: dark keyword `#72AAA5` (muted teal), string `#A3B58A` (subdued sage), function `#CFC4B8`, constant `#B8AAA0` (warm gray, also punctuation and numbers), comment `#89868A` (the secondary text color), variable `#A8C0B8`, tag `#8FAE94`, type name `#B5C4A8`. Light values are the same families darkened: `#2F6F6A`, `#4C6B3C`, `#6E6259`, `#8A5A13`, `#6A686E`, `#7A5230`, `#3F7057`, `#556B47`. Each reaches 4.5:1 on the editor background and surface, where code renders. The text cursor is an off-white line with a tiny Carmine cap. CSS: `--syntax-keyword` and so on.
+Code and logs use separate `--syntax-*` roles. Dark keywords use `#72AAA5`, strings `#A3B58A`, functions `#CFC4B8`, constants `#B8AAA0`, comments `#89868A`, variables `#A8C0B8`, tags `#8FAE94`, and type names `#B5C4A8`. The corresponding light values are `#2F6F6A`, `#4C6B3C`, `#6E6259`, `#8A5A13`, `#6A686E`, `#7A5230`, `#3F7057`, and `#556B47`. Each reaches 4.5:1 on the editor background and surface.
 
 ## Elevation
 
-Floating layers use a fill, a 1px edge and a shadow. The shadow adds depth but never replaces the edge.
+Floating layers use semantic fills and a visible edge.
 
-| Level | Fill | Edge | Dark shadow | Light shadow | Use |
-| --- | --- | --- | --- | --- | --- |
-| Popup (z 100) | `raised` | `edge` | `0 4px 8px #0006` | `0 4px 8px #0000001F` | Menus, dropdowns, context menus |
-| Tooltip (z 200) | `selected` | `border` | `0 2px 6px #0006` | `0 2px 6px #0000001F` | Tooltips and hints |
-| Dialog (z 300) | `raised` | `border` | `0 8px 24px #000A` | `0 8px 24px #00000033` | Modal dialogs and sheets |
+| Level | Fill | Edge | Use |
+| --- | --- | --- | --- |
+| Popup (z 100) | `raised` | `edge` | Menus, dropdowns, context menus |
+| Tooltip (z 200) | `selected` | `border` | Tooltips and hints |
+| Dialog (z 300) | `raised` | `border` | Modal dialogs and sheets |
 
-A modal dialog sits on a scrim (`--scrim`: `#000000B3` dark, `#00000066` light). CSS: `--elevation-popup`, `--elevation-tooltip`, `--elevation-dialog`.
+Modal dialogs keep the scrim (`--scrim`, `#000000B3` dark and `#00000066` light). The legacy shadow properties `--material-shadow`, `--elevation-popup`, `--elevation-tooltip`, and `--elevation-dialog` resolve to `none`.
 
 ## Accent tints
 
@@ -98,38 +100,35 @@ Quiet region fills come from mixing an accent into the background in OKLab at 8%
 
 ## Grid signature
 
-The grid is a static, quiet motif that appears in three places:
+Use 24px square cells with 1px lines in `--grid` in empty areas and canvases. Fade the grid behind code and dense content. Use solid fills behind long reading text. A 2px `--selection-indicator` line marks the active compartment header.
 
-| Where | Spec |
-| --- | --- |
-| Empty areas and canvases | 24 px square cells, 1px lines in `--grid`, fully visible in empty areas |
-| Determinate progress | Ten equal segments with a gap between them. Indeterminate progress uses a moving segment and becomes static under reduced motion |
-| Active-region rule | A 2px `--selection-indicator` line under the focused compartment's header. One per window |
-
-Behind code and dense content the grid fades to a whisper instead of disappearing; it is never drawn behind body text the user must read at length. `--grid` stays within 1.04–1.3:1 of the background, surface and raised surfaces. Text, selection markers, focus outlines and control boundaries drawn over it keep their normal contrast, subject to the Carmine indicator rule. Forced colors and reduced-motion modes remove the pattern and keep the status text.
+The decorative grid stays within 1.04–1.30:1 of the background, surface and raised surfaces. Text and indicators retain their contrast. In forced colors, keep the underlying surface and all status text.
 
 ## Background texture
 
-The fine square grid is the only background texture in revision 3. The wood-grain texture from revision 2 is retired: its swatch, its demo option and its contrast test are removed. Workspaces that used the wood grain use the grid (or the flat background) instead.
+The fine square grid is the standard background texture. Honor the user's flat preference.
+
+## Radial progress
+
+Use `--radial-size` (3rem), `--radial-stroke` (3px), and the `--progress` arc color. The size corresponds to 48 CSS pixels at the default root font size. Use a neutral track, an operation name and a measured percentage. For unknown values, show an indeterminate arc and descriptive status. Keep the arc static under reduced motion. [Progress tokens](tokens.json)
 
 ## Measured palette contract
 
-The dark Background, Surface, and Raised OKLCH lightness values are 0.223, 0.241, and 0.257, with very low chroma (under 0.006). Their linear-sRGB relative luminance rises by about 25% and 22% — revision 3 separates compartments mainly with 1px edges, so the documented dark step range is 15% to 40%. The high-contrast scheme keeps its own range (150% to 300%). [CSS Color 4 conversion method](https://www.w3.org/TR/css-color/#color-conversion-code)
+Dark Background, Surface, and Raised use OKLCH lightness values of 0.223, 0.241, and 0.257. Their relative luminance rises by about 25% and 22%. The dark step range is 15% to 40%. The High Contrast theme uses a different range of 150% to 300%. [CSS Color 4 conversion method](https://www.w3.org/TR/css-color/#color-conversion-code)
 
 | Checked pairing | Dark minimum | Light minimum |
 | --- | ---: | ---: |
 | Body text on four surfaces | 11.18:1 | 12.02:1 |
-| Muted labels on the background and surface | 4.57:1 | 6.81:1 |
-| Muted labels on raised and selected fills (short labels only) | 3.97:1 | 5.89:1 |
+| Muted labels on four surfaces and strong selection | 4.83:1 | 4.89:1 |
 | Semantic labels on four surfaces | 5.45:1 | 5.77:1 |
 | Primary label at rest and pressed (hover) | 9.09:1 (7.56:1) | 9.09:1 (11.07:1) |
-| Carmine indicators on four surfaces, including the selected fill | 1.57:1 | 4.35:1 (focus) |
+| Focus outline on four surfaces and strong selection | 5.48:1 | 3.61:1 |
 | Primary fill against background, surface and raised | 1.72:1, bounded by its border rim | 7.17:1 |
 | Control boundary on surfaces | 3.16:1 | 4.13:1 |
 | Edge against background, surface and raised | 1.60:1 | 1.56:1 |
-| Selection indicator on four surfaces, including the selected fill | 1.57:1 | 6.73:1 |
+| Selection marker and progress arc on four surfaces and strong selection | 3.12:1 | 5.58:1 |
 
-The Carmine rows are the revision 3 trade-off, stated plainly: deep Carmine is restrained on near-black, so a Carmine indicator is never the only cue (see the accent indicator rule in [tokens.json](tokens.json)). Every text pairing keeps its AA target, and the High Contrast theme keeps 7:1 throughout.
+The dark Carmine action uses a visible `border` rim. Its white label is 9.09:1 at rest. Use the separate selection, focus and progress colors with their corresponding shape or state cues. [Contrast rules](tokens.json)
 
 Fills that mean different states must also differ from each other. These are fill-to-fill ratios, so they support recognition rather than replace boundaries, markers and labels.
 
@@ -139,6 +138,6 @@ Fills that mean different states must also differ from each other. These are fil
 | Primary action hover against rest | 1.20:1 | 1.22:1 | 1.05:1 |
 | Primary action pressed against rest | 1.22:1 | 1.47:1 | 1.05:1 |
 | Grid against surfaces (range) | 1.07–1.17:1 | 1.05–1.13:1 | 1.04–1.30:1 |
-| Focus against selection indicator | 1.00:1 — the same Carmine by design; the two cues differ by geometry (outline around the control, bar or underline on the item) | 1.55:1 | 1.30:1 in the light theme; by design in the dark theme |
+| Focus against selection indicator | 1.76:1 | 1.55:1 | 1.30:1 |
 
 Figures are rounded for display. `node --test demo/tokens.test.mjs` compares unrounded ratios in both encodings, checks CSS and JSON agreement, validates the dark surface steps, and enforces the distinctness minimums. `node tools/build-tokens.mjs --check` confirms that generated outputs match `tokens.json`. [W3C non-text contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast)
