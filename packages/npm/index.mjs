@@ -15,4 +15,4 @@ export const syntax = { dark: source.syntax.dark, light: source.syntax.light };
 export const progress = source.progress;
 /** Location of the CSS custom property sheet. */
 export const cssUrl = new URL('./tessel.css', import.meta.url);
-export const version = "3.0.0-dev.1";
+export const version = "3.0.0";
