@@ -1,5 +1,7 @@
 # Tessel design guidelines · revision 3
 
+These guidelines describe the published Revision 3 reference. For new Revision 4 implementations, the master specification takes precedence wherever the two differ. [Revision 4 master specification](master-specification.md)
+
 A dense, tactile standard for long-session desktop software of any kind: editors, data tools, media tools, monitors, utilities, communication, CAD, and system settings. It defines tokens, regions, density, and behavior. It does not define your product's content. [One-page summary](quick-reference.md) · [Category layouts](categories.md) · [Workspaces](workspaces.md) · [Polish checklist](polish.md) · [Decisions](decisions.md) · [Live demo](https://seanshaffer88.github.io/TesselGUI/demo/) · [Category demo](https://seanshaffer88.github.io/TesselGUI/demo/categories/) · [Tokens](tokens.json)
 
 ## Principles

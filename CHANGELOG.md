@@ -2,6 +2,10 @@
 
 Releases use [Semantic Versioning](https://semver.org/) for the documented token and interaction contracts. Design revisions identify guidance milestones.
 
+## Unreleased
+
+- Adopted the Revision 4 design standard with a High Contrast VS Code baseline, adaptive layouts, edge drawers, and radial progress. Added a static design mockup. The published demos and token exports represent Revision 3. [Revision 4 master specification](docs/master-specification.md)
+
 ## 2.0.0 · 2026-11-13
 
 Design revision 3. Breaking: the default scheme is replaced (see [migration notes](docs/migration.md)).

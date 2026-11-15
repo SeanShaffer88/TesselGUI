@@ -40,4 +40,6 @@ The [browser reference](demo/portableforge/) uses original educational HTML, CSS
 
 ## Application mockups
 
-The images in [assets/mockups](assets/mockups/) are original screen mockups of fictional programs authored for Tessel by Sean Shaffer with AI assistance. They were built as static HTML from the Tessel tokens and rendered to PNG with a headless browser; the source pages are not kept in this repository. The animated slideshows are assembled from the same PNGs, and the light and Graphite sets use the same pages with the light theme or the Graphite preset applied. All program names, files, people and data are fictional. They use the repository's CC BY 4.0 license for images.
+The PNG images in [assets/mockups](assets/mockups/) are original screen mockups of fictional programs authored for Tessel by Sean Shaffer with AI assistance. They were built as static HTML from the Tessel tokens and rendered to PNG with a headless browser; the source pages are not kept in this repository. The animated slideshows are assembled from the same PNGs, and the light and Graphite sets use the same pages with the light theme or the Graphite preset applied. All program names, files, people and data are fictional. They use the repository's CC BY 4.0 license for images.
+
+The Revision 4 mockup is an original standalone SVG created for Tessel by Sean Shaffer with AI assistance. It uses fictional sample data and the repository's CC BY 4.0 license. [Revision 4 mockup](assets/mockups/tessel-master-spec.svg)

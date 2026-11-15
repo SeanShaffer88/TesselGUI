@@ -1,5 +1,7 @@
 # Adoption guide
 
+This guide covers the Revision 3 reference and token exports. Follow the master specification for Revision 4 layout, drawers, and progress. [Revision 4 master specification](master-specification.md)
+
 How to bring the standard into a project. Take the generated token export for your stack, apply the rules in order, and record deviations. Never edit generated files: change [tokens.json](tokens.json), run `node tools/build-tokens.mjs`, and commit the outputs.
 
 ## 1. Pick your export
