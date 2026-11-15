@@ -1179,7 +1179,7 @@
       "rule": "Keep read-only content usable. Disable only the actions that need the network and say which."
     }
   },
-  "version": "3.0.0-dev.1",
+  "version": "3.0.0",
   "commandPalette": {
     "scope": "Extends shortcuts.palette. The palette lists everything the product can do and teaches its shortcuts.",
     "registry": {
