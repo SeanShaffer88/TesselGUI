@@ -37,3 +37,15 @@ test('high contrast demands 7:1 where dark demands 4.5:1', () => {
   assert.equal(stronger.minimum, 7);
   assert.equal(regular.minimum, 4.5);
 });
+
+test('dark focus, selection and radial progress retain the non-text contrast floor', () => {
+  const checks = buildChecks(tokens.color, tokens, 'dark');
+  for (const role of ['focus', 'selectionIndicator', 'progress']) {
+    const check = checks.find(c => c.foreground === role && c.background === 'selected');
+    assert.equal(check.minimum, 3, role);
+    assert.ok(check.pass, role);
+  }
+  const muted = checks.find(c => c.foreground === 'muted' && c.background === 'selected');
+  assert.equal(muted.minimum, 4.5);
+  assert.ok(muted.pass);
+});

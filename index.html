@@ -1,18 +1,19 @@
 <!doctype html>
-<html lang="en" data-theme="system">
+<html lang="en" data-theme="dark" data-accent="carmine">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark light">
   <title>TesselGUI interface standard</title>
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="demo/icons.svg">
   <link rel="stylesheet" href="demo/style.css">
+  <link rel="stylesheet" href="demo/patterns.css">
   <style>
-    main { max-width: 58rem; margin-inline: auto; }
+    main { max-width: 76rem; margin-inline: auto; }
     main > * + * { margin-block-start: 24px; }
     .links { display: flex; flex-wrap: wrap; gap: 8px 16px; }
     .links a, .examples a, footer a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; padding: 6px 8px; }
-    .links .primary { color: var(--accent-foreground); background: var(--accent); border: 1px solid var(--border); border-radius: .35rem; }
+    .links .primary { color: var(--action-foreground); background: var(--action); border: 1px solid var(--border); border-radius: .35rem; }
     @media (forced-colors: active) {
       .links .primary { color: LinkText; background: Canvas; border-color: LinkText; }
     }
@@ -20,10 +21,11 @@
     .examples h3 { margin-block-start: 0; }
     .surface { padding: 12px; border: 1px solid var(--border); border-radius: .35rem; }
     .surface + .surface { margin-block-start: 8px; }
-    .level-1 { background: var(--surface-1, var(--surface)); }
-    .level-2 { background: var(--surface-2, var(--raised)); }
-    .level-3 { background: var(--surface-3, var(--action)); }
-    .level-4 { background: var(--surface-4, var(--raised)); }
+    .level-1 { background: var(--surface-1); }
+    .level-2 { background: var(--surface-2); }
+    .level-3 { background: var(--surface-3); }
+    .level-4 { background: var(--surface-4); }
+    .example-progress { display: flex; align-items: center; gap: var(--control-gap); margin-block: 8px; }
     summary { min-width: 44px; min-height: 44px; padding-block: 8px; cursor: pointer; }
     kbd { font: inherit; font-weight: 600; }
     footer { display: block; margin-top: 24px; }
@@ -39,17 +41,18 @@
       <a class="primary" href="https://github.com/SeanShaffer88/TesselGUI/blob/main/docs/master-specification.md">Read the current design standard</a>
       <a href="https://github.com/SeanShaffer88/TesselGUI">Repository</a>
     </nav>
-    <nav class="links" aria-label="Revision 3 reference resources">
-      <a href="demo/">Revision 3 workspace</a>
-      <a href="demo/portableforge/">Revision 3 PortableForge workflow</a>
-      <a href="https://github.com/SeanShaffer88/TesselGUI/blob/main/docs/workflow-recipes.md">Revision 3 workflow recipes</a>
-      <a href="docs/tokens.json">Revision 3 tokens JSON</a>
-      <a href="demo/tokens.css">Revision 3 CSS tokens</a>
+    <nav class="links" aria-label="Live demos and tokens">
+      <a href="demo/">Workspace</a>
+      <a href="demo/categories/">Category layouts</a>
+      <a href="demo/portableforge/">PortableForge workflow</a>
+      <a href="demo/contrast/">Contrast checker</a>
+      <a href="docs/tokens.json">Design tokens JSON</a>
+      <a href="demo/tokens.css">CSS tokens</a>
     </nav>
   </header>
 
   <section class="panel" aria-labelledby="usage-heading">
-    <h2 id="usage-heading">Revision 3 component examples</h2>
+    <h2 id="usage-heading">Revision 4 component examples</h2>
     <p>Give each view one main decision or action. Let its supporting controls share space and keep current state visible with text, shape, or a marker alongside color.</p>
     <div class="examples">
       <article class="panel">
@@ -66,7 +69,11 @@
           <button type="button" disabled>Unavailable action</button>
           <a href="demo/#simulation-heading">Try a primary action in the workspace</a>
         </div>
-        <p>Lead with one primary action and a clear verb. Tessel uses deep Carmine <code>#960018</code> for the primary action fill and for thin indicators: the active-tab underline, the selection edge and the focus outline. Pair color with visible text and programmatic state.</p>
+        <p>Use deep Carmine for the primary action, brighter red for active and selected markers, and a distinct focus outline. Pair color with text, geometry, or a programmatic state.</p>
+        <div class="example-progress">
+          <div class="radial-progress" role="progressbar" aria-label="Sample preview" aria-valuenow="64" style="--progress-value: 64"><span class="radial-progress__value" aria-hidden="true">64%</span></div>
+          <span>Sample preview</span>
+        </div>
       </article>
       <article class="panel">
         <h3>Panels and preferences</h3>

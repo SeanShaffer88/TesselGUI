@@ -2,6 +2,17 @@
 
 What changed for consumers of the tokens, and how to update. Releases are listed newest first. [Changelog](../CHANGELOG.md).
 
+## Revision 4 · Unreleased
+
+Current source exports identify themselves as `3.0.0-dev.1`. Existing projects can adopt the new contract when they next update their token exports. [Master specification](master-specification.md)
+
+| Change | Action |
+| --- | --- |
+| The default palette separates focus, selection, progress and deep Carmine | Use each semantic role. Keep the dark Carmine action's visible border |
+| Workspace presets use content and available space | Replace reads of `layouts.presets.*.dominantPercent` with adaptive layout logic. Preset IDs and keyboard shortcuts remain stable |
+| Progress uses a ring | Replace segmented or linear completion indicators with the radial geometry in `progress`. Place the operation name and real percentage alongside the ring |
+| Elevation is flat | Use the semantic surface and edge roles. The existing shadow tokens now resolve to `none` |
+
 ## 1.4.0 → 2.0.0
 
 Breaking. Design revision 3 replaces the default scheme. Every dark color role changes value, the default preset changes, and the wood-grain texture is removed.

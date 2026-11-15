@@ -19,6 +19,7 @@ for (const theme of ['lightColor', 'highContrastColor']) {
 }
 const kebab = name => ({ background: 'bg', foreground: 'fg' })[name] ?? name.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
 const version = tokens.version;
+const { size: radialSize, stroke: radialStroke, ...progressMetadata } = tokens.progress;
 const themes = { dark: tokens.color, light: tokens.lightColor, highContrast: tokens.highContrastColor };
 
 // OKLab mixing for accent tints. The CSS output uses color-mix(in oklab, ...) so both agree.
@@ -49,6 +50,8 @@ const snake = name => name.replace(/[A-Z]/g, c => `_${c.toLowerCase()}`);
 const channels = hex => hex.slice(1).match(/../g).map(c => Number.parseInt(c, 16));
 const fontStack = list => list.map(f => (/\s/.test(f) ? `'${f}'` : f)).join(', ');
 const accentRoles = ['accent', 'action', 'actionHover', 'actionPressed', 'selectionIndicator', 'focus'];
+const presetPalette = palette => ({ ...palette, progress: palette.selectionIndicator });
+const presetRoles = [...accentRoles, 'progress'];
 const accentPresets = Object.entries(tokens.appearanceAccents.presets)
   .filter(([id]) => id !== tokens.appearanceAccents.default);
 for (const [id, preset] of accentPresets) {
@@ -97,6 +100,8 @@ function css() {
     `--group-gap: ${tokens.space.relatedGroupGap[1]}px;`,
     `--section-gap: ${tokens.space.sectionGap}px;`,
     `--touch-target: ${tokens.density.touchControlMinWidth}px;`,
+    `--radial-size: ${radialSize.webRem}rem;`,
+    `--radial-stroke: ${radialStroke.value}px;`,
     `--motion-short: ${tokens.motion.shortTransition}ms;`,
     `--motion-panel: ${tokens.motion.panelTransition}ms;`,
     ...Object.entries(tokens.motion.duration).map(([k, v]) => `--motion-${k}: ${v}ms;`),
@@ -124,7 +129,10 @@ function css() {
     return accentPresets.map(([id, preset]) => {
       const palette = useOklch ? preset.oklch : preset;
       const selector = `:root[data-accent=${id}]`;
-      const declarations = theme => accentRoles.map(role => `--${kebab(role)}: ${palette[theme][role]};`).join(' ');
+      const declarations = theme => {
+        const colors = presetPalette(palette[theme]);
+        return presetRoles.map(role => `--${kebab(role)}: ${colors[role]};`).join(' ');
+      };
       return [
         `${indent}${selector} { ${declarations('dark')} }`,
         `${indent}${selector}[data-theme=light] { ${declarations('light')} }`,
@@ -162,8 +170,10 @@ function dtcg() {
   const ms = value => ({ $type: 'duration', $value: { value, unit: 'ms' } });
   const palette = p => Object.fromEntries(roles.map(role => [role, color(p[role])]));
   const presets = Object.fromEntries(accentPresets.map(([id, preset]) => [id,
-    Object.fromEntries(['dark', 'light'].map(theme => [theme,
-      Object.fromEntries(accentRoles.map(role => [role, color(preset[theme][role])]))]))]));
+    Object.fromEntries(['dark', 'light'].map(theme => {
+      const colors = presetPalette(preset[theme]);
+      return [theme, Object.fromEntries(presetRoles.map(role => [role, color(colors[role])]))];
+    }))]));
   const d = tokens.density;
   return JSON.stringify({
     $description: generatedNote,
@@ -173,6 +183,13 @@ function dtcg() {
     accentTint: Object.fromEntries(tokens.accentTint.roles.map(role => [role, Object.fromEntries(Object.entries(themes).map(([theme, p]) =>
       [theme, Object.fromEntries(tokens.accentTint.steps.map((step, i) => [`tint${i + 1}`, color(tint(p[role], p[tokens.accentTint.over], step))]))]))])),
     elevation: tokens.elevation,
+    surfaceAliases: tokens.surfaceAliases,
+    progress: {
+      $description: 'Radial progress dimensions in CSS-pixel-equivalent units.',
+      $extensions: { 'com.seanshaffer88.tesselgui.progress': progressMetadata },
+      size: dim(radialSize.value),
+      stroke: dim(radialStroke.value),
+    },
     focusRing: tokens.focusRing, table: tokens.table, navigation: tokens.navigation, statusBar: tokens.statusBar, states: tokens.states,
     commandPalette: tokens.commandPalette, layouts: tokens.layouts, canvas: tokens.canvas, undo: tokens.undo, inlineFeedback: tokens.inlineFeedback,
     space: {
@@ -239,6 +256,8 @@ ${brushes}
   <FontFamily x:Key="VgFontSans">${tokens.type.sans[0]}</FontFamily>
   <FontFamily x:Key="VgFontMono">${tokens.type.mono[0]}</FontFamily>
 ${Object.entries(tokens.type.size).map(([k, v]) => `  <x:Double x:Key="VgFontSize${pascal(k)}">${v}</x:Double>`).join('\n')}
+  <x:Double x:Key="VgRadialSize">${radialSize.value}</x:Double>
+  <x:Double x:Key="VgRadialStroke">${radialStroke.value}</x:Double>
 ${Object.entries(tokens.motion.duration).map(([k, v]) => `  <x:Double x:Key="VgMotion${pascal(k)}Ms">${v}</x:Double>`).join('\n')}
   <Thickness x:Key="VgFocusVisualThickness">3</Thickness>
   <Thickness x:Key="VgFocusVisualMargin">-3</Thickness>
@@ -256,6 +275,8 @@ ${roles.map(role => `  <Color x:Key="Vg${pascal(role)}Color">${palette[role]}</C
   <FontFamily x:Key="VgFontSans">${tokens.type.sans[0]}</FontFamily>
   <FontFamily x:Key="VgFontMono">${tokens.type.mono[0]}</FontFamily>
 ${Object.entries(tokens.type.size).map(([k, v]) => `  <sys:Double x:Key="VgFontSize${pascal(k)}">${v}</sys:Double>`).join('\n')}
+  <sys:Double x:Key="VgRadialSize">${radialSize.value}</sys:Double>
+  <sys:Double x:Key="VgRadialStroke">${radialStroke.value}</sys:Double>
 ${Object.entries(tokens.motion.duration).map(([k, v]) => `  <sys:Double x:Key="VgMotion${pascal(k)}Ms">${v}</sys:Double>`).join('\n')}
 </ResourceDictionary>
 `;
@@ -309,6 +330,8 @@ pub const CONTROL_GAP_MIN: f32 = ${s.controlGapMinimum}.0;
 pub const GROUP_GAP: f32 = ${s.relatedGroupGap[1]}.0;
 pub const SECTION_GAP: f32 = ${s.sectionGap}.0;
 pub const TOUCH_TARGET: f32 = ${d.touchControlMinWidth}.0;
+pub const RADIAL_SIZE: f32 = ${radialSize.value}.0;
+pub const RADIAL_STROKE: f32 = ${radialStroke.value}.0;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Density { pub panel_padding: f32, pub control_min_height: f32, pub row_min_height: f32 }
@@ -349,6 +372,8 @@ ${Object.entries(tokens.surfaceAliases).map(([alias, role]) => `    out property
     out property <length> group-gap: ${tokens.space.relatedGroupGap[1]}px;
     out property <length> section-gap: ${tokens.space.sectionGap}px;
     out property <length> touch-target: ${tokens.density.touchControlMinWidth}px;
+    out property <length> radial-size: ${radialSize.value}px;
+    out property <length> radial-stroke: ${radialStroke.value}px;
 ${Object.entries(tokens.type.size).map(([k, v]) => `    out property <length> font-size-${k}: ${v}px;`).join('\n')}
     out property <string> font-sans: "${tokens.type.sans[0]}";
     out property <string> font-mono: "${tokens.type.mono[0]}";
@@ -376,6 +401,8 @@ const SYNTAX_LIGHT := {\n${syntaxKeys.map(k => `\t"${snake(k)}": ${col(tokens.sy
 const CONTROL_GAP := ${tokens.space.controlGap}
 const SECTION_GAP := ${tokens.space.sectionGap}
 const TOUCH_TARGET := ${tokens.density.touchControlMinWidth}
+const RADIAL_SIZE := ${radialSize.value}
+const RADIAL_STROKE := ${radialStroke.value}
 ${Object.entries(tokens.type.size).map(([k, v]) => `const FONT_SIZE_${k.toUpperCase()} := ${v}`).join('\n')}
 ${Object.entries(tokens.motion.duration).map(([k, v]) => `const MOTION_${k.toUpperCase()}_MS := ${v}`).join('\n')}
 ${Object.entries(tokens.motion.easing).map(([k, v]) => `const EASE_${k.toUpperCase()} := Vector4(${v.join(', ')})`).join('\n')}
@@ -411,6 +438,8 @@ export const dtcg = read('./tessel.tokens.json');
 export const palettes = { dark: source.color, light: source.lightColor, highContrast: source.highContrastColor };
 /** Syntax colors by theme. */
 export const syntax = { dark: source.syntax.dark, light: source.syntax.light };
+/** Radial progress dimensions and state guidance. */
+export const progress = source.progress;
 /** Location of the CSS custom property sheet. */
 export const cssUrl = new URL('./tessel.css', import.meta.url);
 export const version = ${JSON.stringify(version)};
@@ -423,6 +452,14 @@ export const source: Record<string, any>;
 export const dtcg: Record<string, any>;
 export const palettes: Record<Theme, Record<Role, string>>;
 export const syntax: { dark: Record<SyntaxRole, string>; light: Record<SyntaxRole, string> };
+export const progress: {
+  shape: 'radial';
+  color: 'progress';
+  size: { value: number; unit: 'px'; webRem: number };
+  stroke: { value: number; unit: 'px' };
+  determinate: string;
+  indeterminate: string;
+};
 export const cssUrl: URL;
 export const version: string;
 `,
@@ -432,7 +469,7 @@ ${norm(`Design tokens for [TesselGUI](${repoUrl}), version ${version}. Generated
 
 \`\`\`js
 import { palettes, syntax } from 'tesselgui-tokens';
-palettes.dark.background; // '#010409'
+palettes.dark.background; // '${tokens.color.background}'
 \`\`\`
 
 \`\`\`css

@@ -10,6 +10,7 @@ import { setTimeout as wait } from 'node:timers/promises';
 const TYPES = new Map([
   ['.html', 'text/html; charset=utf-8'],
   ['.css', 'text/css; charset=utf-8'],
+  ['.json', 'application/json; charset=utf-8'],
   ['.js', 'text/javascript; charset=utf-8'],
   ['.mjs', 'text/javascript; charset=utf-8'],
   ['.svg', 'image/svg+xml'],
@@ -46,10 +47,11 @@ async function serve(root) {
         return;
       }
       const content = await readFile(filename);
+      const connectSource = filename === join(base, 'demo', 'contrast', 'index.html') ? "'self'" : "'none'";
       response.writeHead(200, {
         'Content-Type': type,
         'Cache-Control': 'no-store',
-        'Content-Security-Policy': "default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; style-src 'self' 'unsafe-inline'",
+        'Content-Security-Policy': `default-src 'self'; connect-src ${connectSource}; object-src 'none'; base-uri 'none'; form-action 'self'; style-src 'self' 'unsafe-inline'`,
       }).end(content);
     } catch {
       response.writeHead(404).end();

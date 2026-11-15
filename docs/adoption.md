@@ -1,14 +1,12 @@
 # Adoption guide
 
-This guide covers the Revision 3 reference and token exports. Follow the master specification for Revision 4 layout, drawers, and progress. [Revision 4 master specification](master-specification.md)
-
-How to bring the standard into a project. Take the generated token export for your stack, apply the rules in order, and record deviations. Never edit generated files: change [tokens.json](tokens.json), run `node tools/build-tokens.mjs`, and commit the outputs.
+Choose the generated export for your stack and apply the current standard. To change the exports, edit `tokens.json` and run `node tools/build-tokens.mjs`. [Master specification](master-specification.md) · [Source tokens](tokens.json) · [Migration notes](migration.md)
 
 ## 1. Pick your export
 
 | Stack | File | Use |
 | --- | --- | --- |
-| Web, Tauri, Electron-free webviews | [demo/tokens.css](../demo/tokens.css) | Link it. Set `data-theme` (system, light, dark) and `data-accent` (github, crimson, blue, teal, graphite) on the root element. |
+| Web, Tauri, webviews | [demo/tokens.css](../demo/tokens.css) | Set `data-theme` (system, light, dark, high-contrast) and `data-accent` (carmine, github, crimson, blue, teal, graphite) on the root element. |
 | Rust (Win32, windows-sys) | [dist/tessel.rs](../dist/tessel.rs) | Include as a module. Palettes are `[u8; 3]`. Sizes are CSS-pixel equivalents: scale by DPI. |
 | Slint | [dist/Tessel.slint](../dist/Tessel.slint) | Import the `Tessel` global. Bind `dark` to the OS theme from Rust. |
 | WPF | [dist/Tessel.Dark.xaml](../dist/Tessel.Dark.xaml), [dist/Tessel.Light.xaml](../dist/Tessel.Light.xaml) | Merge one dictionary and swap it to change theme. Use `SystemColors` when `SystemParameters.HighContrast` is true. |
@@ -19,12 +17,12 @@ How to bring the standard into a project. Take the generated token export for yo
 
 ## 2. Apply in this order
 
-1. **Color roles.** Set the surfaces (background, surface, raised, selected), text (foreground, muted), `edge` for structure and `border` for controls. Use `action*` only for the one primary action per region, and `selectionIndicator` for selection and the active-region rule.
-2. **Density.** Rows, toolbars and trees Compact. Forms, dialogs and navigation Comfortable. Touch input uses Touch.
-3. **Layout.** One dominant region, supporting regions at 20 to 35%, a status strip. Windows fit without scrollbars. Follow the [fill rule](design-guidelines.md#layout).
+1. **Color roles.** Use the semantic surface levels, `edge` for structure, `border` for controls, and separate action, focus, selection and progress roles. [Materials](materials.md)
+2. **Density.** Give rows, toolbars, trees and primary navigation the Compact rhythm. Use Comfortable for forms and dialogs, and Touch for touch input.
+3. **Layout.** Give the active task the available space its content needs. Align shared edges, let supporting modules fill their space, and hide secondary tools behind contextual drawer triggers. Drawers open toward the nearest usable edge with a safe in-window fallback. [Layout protocols](master-specification.md#2-structural--layout-protocols)
 4. **Data lists.** Use the [data list pattern](data-lists.md) for every list of records.
 5. **Keyboard.** A path for every task, visible shortcuts, Ctrl/⌘+K for commands. Resize and collapse work from the keyboard.
-6. **States.** Empty, loading, success, error, disabled, offline and confirm. Status uses text plus an icon.
+6. **States.** Verify empty, loading, success, error, disabled, offline and confirm. Use a labeled round progress indicator with the real percentage when known and a descriptive status when unknown. [Progress tokens](materials.md#radial-progress)
 7. **Themes.** Dark and Light, plus High Contrast and forced colors using native system colors. Offer Graphite for color-critical work.
 8. **Background texture.** The [fine square grid](materials.md#grid-signature) shows in empty areas and fades behind code. Dense reading surfaces stay flat.
 
@@ -32,7 +30,7 @@ How to bring the standard into a project. Take the generated token export for yo
 
 - Follow the OS theme and respect High Contrast. Do not hard-code colors where a system color should apply.
 - Per-Monitor DPI v2. Scale pixel values from the token export by the display scale.
-- Native controls first. Style the chrome with tokens, and keep native focus behavior unless you replace it with the 3 px `focus` outline at a 3 px offset.
+- Prefer native controls and keep their focus behavior. A custom focus outline uses the corresponding focus ring tokens.
 - Remember window size, position and splitter positions, and restore them safely when displays or DPI change.
 - No telemetry, no required network, and settings stored locally in a readable format.
 
@@ -44,7 +42,7 @@ Use the [verification guide](verification.md). At minimum:
 - Keyboard-only run of the core task. Tab order, Esc to cancel, Enter to submit.
 - 100% to 200% scaling and 200% text without clipping or main-window scrollbars.
 - Populated, empty, error and progress states for every list and form.
-- No region leaves more than one compact row of unused height.
+- The workspace and supporting regions use the available viewport. Drawers reflow safely when window position or display geometry changes.
 
 ## 5. Record deviations
 

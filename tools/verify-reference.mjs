@@ -21,6 +21,8 @@ if (screenshots) {
     '--screenshots requires an existing absolute directory');
 }
 const PATH_OPENER = '[data-path-for="setup-path"]';
+const DISPLAY_OPENER = '#show-display-settings';
+const DISPLAY_DRAWER = '#display-settings-drawer';
 const PROFILE = 'Focus and recovery fixture';
 
 await withReferenceChrome(root, async ({ call, origin, errors, requests, version }) => {
@@ -64,6 +66,27 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
       await key(desired > current ? 'ArrowDown' : 'ArrowUp');
     }
     assert.equal(await value(selector), next, `${selector} keyboard selection`);
+  }
+
+  async function openDisplaySettings() {
+    await tabTo(DISPLAY_OPENER);
+    await key('Enter');
+    await until(() => isVisible(DISPLAY_DRAWER), 'the display settings drawer');
+    assert.ok(await focused('#close-display-settings'), 'drawer opens with focus on Close');
+    assert.equal(await read(`${query(DISPLAY_OPENER)}.getAttribute('aria-expanded')`), 'true');
+    assert.ok(await read(`['top', 'right', 'bottom', 'left'].includes(${query(DISPLAY_DRAWER)}.dataset.edge)`));
+  }
+
+  async function closeDisplaySettings(closeKey = 'Escape') {
+    await key(closeKey);
+    await until(async () => !await isVisible(DISPLAY_DRAWER) && await focused(DISPLAY_OPENER) &&
+      await read(`${query(DISPLAY_OPENER)}.getAttribute('aria-expanded')`) === 'false', 'the restored display settings opener');
+  }
+
+  async function displaySetting(selector, next) {
+    await openDisplaySettings();
+    await select(selector, next);
+    await closeDisplaySettings();
   }
 
   async function click(selector) {
@@ -140,12 +163,13 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
 
   await viewport(640, 480);
   await navigate();
+  assert.ok(!await isVisible(DISPLAY_DRAWER), 'display settings start closed');
+  await openDisplaySettings();
   await select('#text-size', '100');
-  for (const selector of ['#theme', '#texture', '#setup-path', PATH_OPENER, '#installed-path']) {
+  for (const selector of ['#theme', '#texture']) {
     await key('Tab');
-    assert.ok(await focused(selector), `Expected ${selector} next in the capture tab order`);
+    assert.ok(await focused(selector), `Expected ${selector} next in the drawer tab order`);
   }
-  await fit('standard capture');
   await select('#theme', 'dark');
   await select('#texture', 'grid');
   assert.match(await backgroundImage(), /linear-gradient/, 'dark grid preset draws the grid texture');
@@ -158,6 +182,14 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
   await call('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
   assert.equal(await backgroundImage(), 'none', 'forced colors clear the texture');
   await call('Emulation.setEmulatedMedia', { features: [] });
+  await closeDisplaySettings();
+  await openDisplaySettings();
+  await closeDisplaySettings('Enter');
+  for (const selector of ['#setup-path', PATH_OPENER, '#installed-path']) {
+    await key('Tab');
+    assert.ok(await focused(selector), `Expected ${selector} next in the capture tab order`);
+  }
+  await fit('standard capture');
 
   await click('#capture');
   assert.ok(await focused('#setup-path'), 'a missing setup returns focus to the required field');
@@ -186,7 +218,7 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
   const standardFont = await fontSize();
   let previousFont = standardFont;
   for (const size of ['125', '150', '100']) {
-    await select('#text-size', size);
+    await displaySetting('#text-size', size);
     const measured = await fontSize();
     if (size === '100') assert.equal(measured, standardFont, 'standard text size returns to baseline');
     else assert.ok(measured > previousFont, `text size ${size} increases the rendered font`);
@@ -234,6 +266,9 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
   await click('#rebuild');
   assert.ok(await focused('#status'), 'replay starts with focus on progress');
   assert.equal(await read(`${query('#stage-form')}.getAttribute('aria-busy')`), 'true');
+  assert.ok(await isVisible('#operation-progress[data-indeterminate]'), 'replay shows an indeterminate ring');
+  assert.equal(await read(`${query('#operation-progress')}.getAttribute('aria-valuenow')`), null, 'replay does not claim a percentage');
+  assert.match(await text('#status-message'), /percentage unavailable/i);
   const failure = await until(async () => {
     const message = await text('#status-message');
     return /changed|differ|match/i.test(message ?? '') && message;
@@ -242,19 +277,21 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
   assert.ok(await focused('#rebuild-setup'), 'recovery returns focus to the mismatched input');
   assert.equal(await read(`${query('#rebuild-setup')}.getAttribute('aria-errormessage')`), 'status-message');
   assert.equal(await value('#rebuild-setup'), 'changed', 'failed attempt retains the selected input');
+  assert.ok(!await isVisible('#operation-progress'), 'failed replay removes the activity indicator');
   await fit('standard recovery');
   await select('#rebuild-setup', 'original');
   await click('#rebuild');
   await until(() => isVisible('#result-name'), 'the successful result');
   assert.equal(await text('#result-name'), PROFILE, 'replay uses the saved profile');
   assert.ok(await focused('#step-heading'), 'result heading receives focus');
+  assert.ok(!await isVisible('#operation-progress'), 'completed replay removes the activity indicator');
   await fit('standard result');
   await screenshot('tessel-reference-result.png');
 
   await navigate('?fixture=long');
   await click('#use-sample');
   assert.ok((await value('#setup-path')).length > 200, 'long fixture uses a 200+ character setup path');
-  await select('#text-size', '150');
+  await displaySetting('#text-size', '150');
   await fit('long German fixture at 150%', false);
   await viewport(320, 480);
   await fit('narrow German fixture at 150%', false);
@@ -278,7 +315,54 @@ await withReferenceChrome(root, async ({ call, origin, errors, requests, version
   await fit('German recovery at 150%', false);
   await screenshot('tessel-reference-long-recovery.png');
 
+  async function openExample(path, readySelector) {
+    const url = `${origin}${path}`;
+    const result = await call('Page.navigate', { url });
+    assert.equal(result.errorText, undefined);
+    await until(async () => await read(`location.href === ${JSON.stringify(url)} && document.readyState === 'complete'`) &&
+      await isVisible(readySelector), path);
+  }
+
+  function narrowFits(label) {
+    return read('document.documentElement.scrollWidth <= innerWidth').then(fits => {
+      assert.ok(fits, `${label} has no narrow horizontal overflow`);
+    });
+  }
+
+  await viewport(1440, 900);
+  await openExample('/demo/categories/', '#utility .radial-progress');
+  assert.equal(await read('document.querySelectorAll(".win").length'), 8, 'all eight category examples are staged');
+  assert.equal(await text('#utility .radial-progress__value'), '50%');
+  assert.equal(await read(`${query('html')}.dataset.theme`), 'dark', 'category gallery defaults to the charcoal theme');
+  await viewport(320, 480);
+  await narrowFits('Category gallery');
+
+  await openExample('/demo/contrast/', '#tables table');
+  assert.match(await text('#summary'), /all \d+ checks pass in dark/i, 'checker reads and evaluates the staged palette');
+  await narrowFits('Contrast checker');
+  await tabTo('#show-roles');
+  await key('Enter');
+  assert.ok(await focused('#close-roles'));
+  const backgroundHex = '#roles input[aria-label="Background hex"]';
+  assert.equal(await value(backgroundHex), '#1B1B1D');
+  await enterText(backgroundHex, '#FFFFFF');
+  assert.match(await text('#drawer-summary'), /\d+ of \d+ checks fail/i, 'editing a role updates the drawer feedback');
+  await key('Tab', 8);
+  await key('Tab', 8);
+  assert.ok(await focused('#reset'));
+  await key('Enter');
+  assert.equal(await value(backgroundHex), '#1B1B1D');
+  await key('Escape');
+  await until(async () => !await isVisible('#roles-drawer') && await focused('#show-roles'), 'the contrast drawer opener');
+
+  await openExample('/', '.example-progress');
+  assert.equal(await text('.example-progress .radial-progress__value'), '64%');
+  for (const path of ['demo/', 'demo/categories/', 'demo/contrast/', 'demo/portableforge/', 'docs/tokens.json']) {
+    assert.ok(await isVisible(`a[href="${path}"]`), `landing links to ${path}`);
+  }
+  await narrowFits('Landing page');
+
   assert.deepEqual(errors, [], 'browser runtime and asset errors');
   assert.deepEqual(requests.filter(({ local }) => !local), [], 'all app requests stay on loopback');
-  console.log(`${version}: compact layout, resize, keyboard, review, recovery, texture and offline checks passed.`);
+  console.log(`${version}: PortableForge workflow, category gallery, contrast checker and landing page checks passed.`);
 });

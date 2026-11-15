@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { defaults, readPreferences, constrainWidth, transition } from './state.mjs';
+import { closestDrawerEdge } from './patterns.mjs';
 
 test('untrusted display preferences cannot escape allowed values', () => {
   for (const raw of [null, '{', '[]', '{"version":2}', 'x'.repeat(2049)]) {
@@ -35,6 +36,30 @@ test('legacy preferences retain display choices and gain settings defaults', () 
   assert.deepEqual(readPreferences(JSON.stringify(legacy)), {
     ...legacy, accent:'carmine', settingsSection:'appearance', settingsPinned:false
   });
+});
+
+test('a fresh workspace starts dark with its secondary panes closed', () => {
+  const fresh = readPreferences(null);
+  assert.equal(fresh.theme, 'dark');
+  assert.equal(fresh.collapsed, true);
+  assert.equal(fresh.settingsPinned, false);
+  const saved = readPreferences('{"version":1,"theme":"high-contrast","collapsed":false}');
+  assert.equal(saved.theme, 'high-contrast');
+  assert.equal(saved.collapsed, false);
+});
+
+test('drawer edge honors usable screen bounds, including negative-origin displays', () => {
+  const monitor = { left:-1920, top:40, width:1920, height:1040 };
+  const window = { left:-1890, top:230, width:850, height:650 };
+  assert.equal(closestDrawerEdge(monitor, window, 'right'), 'left');
+  const nearTop = { ...window, left:-1500, top:40 };
+  assert.equal(closestDrawerEdge(monitor, nearTop, 'right'), 'top');
+  assert.equal(closestDrawerEdge(monitor, nearTop, 'right', true), 'left');
+  assert.equal(closestDrawerEdge(monitor, { ...window, left:-860, top:290 }, 'left'), 'right');
+  assert.equal(closestDrawerEdge(monitor, { ...window, left:-1500, top:425 }, 'right'), 'bottom');
+  assert.equal(closestDrawerEdge({ ...monitor, left:undefined }, window, 'right'), 'right');
+  assert.equal(closestDrawerEdge(monitor, { ...window, left:0, top:0 }, 'bottom'), 'bottom');
+  assert.equal(closestDrawerEdge(monitor, monitor, 'right'), 'right');
 });
 
 test('accent IDs persist independently of theme and invalid values fall back', () => {

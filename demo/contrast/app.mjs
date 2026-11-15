@@ -1,4 +1,5 @@
 import { buildChecks, summarize, isHex } from './contrast.mjs';
+import { drawerEdge } from '../patterns.mjs';
 
 const tokens = await (await fetch('../../docs/tokens.json')).json();
 const themes = { dark: tokens.color, light: tokens.lightColor, highContrast: tokens.highContrastColor };
@@ -6,6 +7,8 @@ const cssName = name => ({ background: 'bg', foreground: 'fg' })[name] ?? name.r
 const label = name => name.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
 const $ = id => document.getElementById(id);
 const root = document.documentElement;
+const rolesDrawer = $('roles-drawer');
+const rolesOpener = $('show-roles');
 let theme = 'dark';
 let palette = { ...themes[theme] };
 let failuresOnly = false;
@@ -32,10 +35,17 @@ function renderRoles() {
 function renderResults() {
   const checks = buildChecks(palette, tokens, theme);
   const { total, failed, worst } = summarize(checks);
-  $('summary').textContent = failed
+  const summary = failed
     ? `${failed} of ${total} checks fail. Worst: ${label(worst.foreground)} on ${label(worst.background)} at ${worst.ratio.toFixed(2)}:1 (needs ${worst.minimum}:1).`
     : `All ${total} checks pass in ${label(theme)}.`;
+  $('summary').textContent = summary;
+  $('drawer-summary').textContent = summary;
   const groups = Map.groupBy(failuresOnly ? checks.filter(c => !c.pass) : checks, c => c.group);
+  if (groups.size === 0) {
+    const empty = Object.assign(document.createElement('p'), { className: 'results-empty', textContent: 'No failing checks.' });
+    $('tables').replaceChildren(empty);
+    return;
+  }
   $('tables').replaceChildren(...[...groups].map(([group, rows]) => {
     const table = document.createElement('table');
     table.innerHTML = `<caption>${group}</caption><thead><tr><th scope="col">Foreground</th><th scope="col">Background</th><th scope="col">Sample</th><th scope="col">Ratio</th><th scope="col">Needs</th><th scope="col">Result</th></tr></thead>`;
@@ -53,10 +63,22 @@ function renderResults() {
 
 $('theme').addEventListener('change', event => { theme = event.target.value; palette = { ...themes[theme] }; applyTheme(); renderRoles(); renderResults(); });
 $('reset').addEventListener('click', () => { palette = { ...themes[theme] }; applyTheme(); renderRoles(); renderResults(); });
-$('copy').addEventListener('click', async event => {
-  await navigator.clipboard?.writeText(JSON.stringify(palette, null, 2));
-  event.target.textContent = 'Copied';
-  setTimeout(() => { event.target.textContent = 'Copy edited palette'; }, 1500);
+rolesOpener.addEventListener('click', () => {
+  rolesDrawer.dataset.edge = drawerEdge();
+  rolesDrawer.showModal();
+  rolesOpener.setAttribute('aria-expanded', 'true');
+});
+rolesDrawer.addEventListener('close', () => {
+  rolesOpener.setAttribute('aria-expanded', 'false');
+  rolesOpener.focus();
+});
+$('copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(palette, null, 2));
+    $('copy-status').textContent = 'Edited palette copied.';
+  } catch {
+    $('copy-status').textContent = 'Clipboard unavailable. Check browser permissions and try again.';
+  }
 });
 $('only-failures').addEventListener('click', event => { failuresOnly = !failuresOnly; event.target.setAttribute('aria-pressed', String(failuresOnly)); renderResults(); });
 applyTheme(); renderRoles(); renderResults();

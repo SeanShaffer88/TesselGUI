@@ -1,16 +1,17 @@
 <!doctype html>
-<html lang="en" data-theme="system" data-accent="carmine" data-density="auto">
+<html lang="en" data-theme="dark" data-accent="carmine" data-density="auto">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark light">
   <title>Workspace · TesselGUI interaction reference</title>
-  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icons.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="palette.css">
+  <link rel="stylesheet" href="patterns.css">
   <script type="module" src="app.js"></script>
 </head>
-<body>
+<body class="workspace-page">
 <a class="skip" href="#main">Skip to tasks</a>
-<header class="masthead"><div><span class="brand">TesselGUI <span aria-hidden="true">∷</span></span><span class="eyebrow">Interaction reference / 02</span></div><span class="badge">Local simulation</span></header>
+<header class="masthead"><div><span class="brand">TesselGUI <span aria-hidden="true">∷</span></span><span class="eyebrow">Interaction reference</span></div><span class="badge">Local simulation</span></header>
 <div class="app-shell">
   <nav class="navigation" aria-label="Workspace sections">
     <p class="eyebrow">Workspace</p>
@@ -18,18 +19,17 @@
     <a href="#projects"><svg aria-hidden="true"><use href="icons.svg#project"/></svg>Projects</a>
     <button id="show-settings" aria-controls="settings" aria-expanded="false"><svg aria-hidden="true"><use href="icons.svg#settings"/></svg>Settings</button>
     <section id="projects"><h2>Current project</h2><p>Interface foundations</p><p class="muted">Three review tasks. All names and activity are fictional.</p></section>
-    <p class="nav-note">Clarity in every compartment.</p>
   </nav>
-  <main id="main" tabindex="-1">
+  <main id="main" class="tessel-grid" tabindex="-1">
     <div class="page-heading"><div><p class="eyebrow">Interface foundations / Tasks</p><h1>Workspace</h1><p class="muted">Review the prototype, validate assets, prepare the handoff.</p></div>
       <div class="workspace-actions">
         <button id="show-commands" type="button" aria-haspopup="dialog" aria-controls="command-palette" aria-keyshortcuts="Control+K Meta+K">Commands <kbd aria-hidden="true">Ctrl/⌘+K</kbd></button>
-        <button id="show-details" aria-controls="inspector" aria-expanded="true"><svg aria-hidden="true"><use href="icons.svg#details"/></svg>Details</button>
+        <button id="show-details" aria-controls="inspector" aria-expanded="false"><svg aria-hidden="true"><use href="icons.svg#details"/></svg>Details</button>
       </div>
     </div>
     <div class="work-area" id="work-area">
       <div class="primary-work">
-        <section class="panel" aria-labelledby="tasks-heading">
+        <section class="panel task-panel" aria-labelledby="tasks-heading">
           <div class="section-heading"><h2 id="tasks-heading">Tasks</h2><span class="muted small">3 in this project</span></div>
           <table><caption class="sr-only">Fictional project tasks; select a task to inspect it.</caption><thead><tr><th scope="col">Task</th><th scope="col">Status</th></tr></thead>
           <tbody><tr class="selected"><td><button class="task-select" data-task="0" aria-pressed="true">Review prototype</button><span class="task-meta">Design · Avery</span></td><td><span class="status info">In review</span></td></tr>
@@ -39,8 +39,12 @@
         <section class="panel simulation" aria-labelledby="simulation-heading">
           <div class="section-heading"><h2 id="simulation-heading">Prepare preview</h2><span class="badge">Simulated</span></div>
           <p class="muted">A local progress example. No files are processed or uploaded.</p>
-          <div class="progress-heading"><span id="job-status" role="status">Ready</span><output id="percentage" for="job-progress">0%</output></div>
-          <progress id="job-progress" max="100" value="0" aria-label="Simulated preview progress">0%</progress>
+          <div class="progress-heading">
+            <div id="job-progress" class="radial-progress" role="progressbar" aria-label="Simulated preview progress" aria-valuenow="0">
+              <span id="percentage" class="radial-progress__value" aria-hidden="true">0%</span>
+            </div>
+            <span id="job-status" role="status">Ready</span>
+          </div>
           <div class="action-grid"><button class="primary" id="start"><svg aria-hidden="true"><use href="icons.svg#play"/></svg><span>Start simulation</span></button><button id="pause" disabled><svg aria-hidden="true"><use href="icons.svg#pause"/></svg><span>Pause</span></button><button id="cancel" disabled><svg aria-hidden="true"><use href="icons.svg#cancel"/></svg><span>Cancel</span></button></div>
         </section>
         <section class="panel" aria-labelledby="examples-heading"><h2 id="examples-heading">Feedback & recovery</h2><p class="muted small">Choose an example; these controls never test a real connection.</p>
@@ -50,9 +54,9 @@
           <p id="feedback" class="small" role="status"></p>
         </section>
       </div>
-      <div id="resize" role="separator" tabindex="0" aria-label="Details width" aria-controls="inspector" aria-orientation="vertical" aria-valuemin="240" aria-valuemax="420" aria-valuenow="300" aria-valuetext="300 pixels" title="Drag, or use Left/Right arrows; Home/End set limits"></div>
-      <div id="inspector-slot"><aside class="panel inspector" id="inspector" aria-labelledby="details-title">
-        <div class="section-heading"><h2 id="details-title">Details</h2><button id="close-details">Collapse</button></div>
+      <div id="resize" hidden role="separator" tabindex="0" aria-label="Details width" aria-controls="inspector" aria-orientation="vertical" aria-valuemin="240" aria-valuemax="420" aria-valuenow="300" aria-valuetext="300 pixels" title="Drag, or use Left/Right arrows; Home/End set limits"></div>
+      <div id="inspector-slot" hidden><aside class="panel inspector" id="inspector" aria-labelledby="details-title">
+        <div class="section-heading"><h2 id="details-title">Details</h2><button id="close-details">Close</button></div>
         <p class="eyebrow">Selected task</p><h3 id="task-title">Review prototype</h3><p id="task-description">Check hierarchy, keyboard access, and readable task states before handoff.</p>
         <dl><dt>Owner</dt><dd id="task-owner">Avery</dd><dt>Project</dt><dd>Interface foundations</dd><dt>Mode</dt><dd>Fictional review</dd></dl>
         <div class="note"><svg aria-hidden="true"><use href="icons.svg#info"/></svg><p>Selection stays available when this compartment is collapsed.</p></div>
@@ -72,7 +76,7 @@
     <section id="settings-appearance" aria-labelledby="appearance-title">
       <h3 id="appearance-title">Appearance</h3><p class="small muted">Changes apply immediately.</p>
       <div class="settings-fields">
-        <label>Theme<select id="theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+        <label>Theme<select id="theme"><option value="system">System</option><option value="light">Light</option><option value="dark" selected>Dark</option><option value="high-contrast">High Contrast</option></select></label>
         <label>Accent color<select id="accent"><option value="carmine">Carmine</option><option value="github">GitHub</option><option value="crimson">Crimson</option><option value="blue">Blue</option><option value="teal">Teal</option><option value="graphite">Graphite</option></select></label>
         <label>Density<select id="density"><option value="auto" selected>Per component</option><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="touch">Touch</option></select></label>
         <label class="check-label"><input id="effects" type="checkbox"> Decorative edge</label>
@@ -88,18 +92,18 @@
         <p id="width-status" class="small" role="status">Width matches the workspace.</p>
         <div class="button-row"><button class="primary" id="apply-width" type="submit" disabled>Apply</button><button id="cancel-width" type="button" disabled>Cancel changes</button></div>
       </form>
-      <div class="settings-reset"><h3>Reset workspace layout</h3><p class="small muted">Restores the committed width and expanded Details. A pending width draft stays available.</p><button id="reset-layout"><svg aria-hidden="true"><use href="icons.svg#reset"/></svg>Reset layout</button></div>
+      <div class="settings-reset"><h3>Reset workspace layout</h3><p class="small muted">Restores the default Details width and closes Details. A pending width draft stays available.</p><button id="reset-layout"><svg aria-hidden="true"><use href="icons.svg#reset"/></svg>Reset layout</button></div>
     </section>
     <section id="settings-shortcuts" aria-labelledby="shortcuts-title" hidden>
       <h3 id="shortcuts-title">Shortcuts</h3>
-      <dl class="shortcuts"><dt>Tab / Shift+Tab</dt><dd>Move between available controls.</dd><dt>Enter / Space</dt><dd>Activate a focused button.</dd><dt>Ctrl+K / ⌘+K</dt><dd>Open Commands from the workspace when no dialog or editable field has focus. The visible Commands button also works when the browser reserves the shortcut.</dd><dt>Up / Down</dt><dd>In Commands, move between available results. Home and End jump to the first and last result while a result has focus.</dd><dt>Enter in command search</dt><dd>Run the first available match.</dd><dt>Escape</dt><dd>Dismiss the active dialog, or close Settings while focus is inside its drawer.</dd><dt>Left / Right</dt><dd>With the desktop Details divider focused, expand / shrink by 10 pixels.</dd><dt>Home / End</dt><dd>With the divider focused, set 240 / 420 pixels.</dd></dl>
+      <dl class="shortcuts"><dt>Tab / Shift+Tab</dt><dd>Move between available controls.</dd><dt>Enter / Space</dt><dd>Activate a focused button.</dd><dt>Ctrl+K / ⌘+K</dt><dd>Open Commands from the workspace when no dialog or editable field has focus. The visible Commands button also works when the browser reserves the shortcut.</dd><dt>Up / Down</dt><dd>In Commands, move between available results. Home and End jump to the first and last result while a result has focus.</dd><dt>Enter in command search</dt><dd>Run the first available match.</dd><dt>Escape</dt><dd>Dismiss the active dialog or close a drawer that contains focus.</dd><dt>Left / Right</dt><dd>Move the Details divider by 10 pixels.</dd><dt>Home / End</dt><dd>With the divider focused, set 240 / 420 pixels.</dd></dl>
     </section>
     <p class="muted small" id="storage-status">Only display and settings navigation preferences are saved on this browser.</p>
   </aside></div>
 </div>
-<dialog id="settings-dialog" aria-labelledby="settings-heading"><div id="settings-modal-slot"></div></dialog>
-<dialog id="details-dialog" aria-labelledby="details-title"><div id="drawer-slot"></div></dialog>
-<dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-copy"><h2 id="reset-title">Reset workspace layout?</h2><p id="reset-copy">Restore the details width and show the inspector. Theme, accent color, density, and effects stay as selected.</p><form method="dialog" class="button-row"><button value="cancel" autofocus>Keep layout</button><button value="reset" class="destructive">Reset layout</button></form></dialog>
+<dialog id="settings-dialog" class="edge-drawer" aria-labelledby="settings-heading"><div id="settings-modal-slot"></div></dialog>
+<dialog id="details-dialog" class="edge-drawer" aria-labelledby="details-title"><div id="drawer-slot"></div></dialog>
+<dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-copy"><h2 id="reset-title">Reset workspace layout?</h2><p id="reset-copy">Restore the default Details width and close the drawer. Display preferences stay as selected.</p><form method="dialog" class="button-row"><button value="cancel" autofocus>Keep layout</button><button value="reset" class="destructive">Reset layout</button></form></dialog>
 <dialog id="command-palette" aria-labelledby="command-title">
   <div class="section-heading">
     <h2 id="command-title">Command palette</h2>

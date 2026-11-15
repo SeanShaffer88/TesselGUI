@@ -40,16 +40,17 @@ jobs:
         run: |
           mkdir -p _site/demo/portableforge _site/demo/categories _site/demo/contrast _site/docs _site/assets
           cp -- index.html LICENSE _site/
-          cp -- demo/index.html demo/app.js demo/state.mjs demo/palette.mjs demo/style.css demo/tokens.css demo/palette.css demo/icons.svg _site/demo/
-          cp -- demo/categories/index.html demo/categories/style.css _site/demo/categories/
+          cp -- demo/index.html demo/app.js demo/state.mjs demo/palette.mjs demo/style.css demo/tokens.css demo/palette.css demo/patterns.css demo/patterns.mjs demo/icons.svg _site/demo/
+          cp -- demo/categories/index.html demo/categories/app.mjs demo/categories/style.css _site/demo/categories/
           cp -- demo/contrast/index.html demo/contrast/app.mjs demo/contrast/contrast.mjs demo/contrast/style.css _site/demo/contrast/
           cp -- demo/portableforge/index.html demo/portableforge/app.mjs demo/portableforge/state.mjs demo/portableforge/style.css _site/demo/portableforge/
           cp -- docs/tokens.json _site/docs/
           mkdir -p _site/dist && cp -- dist/* _site/dist/
-      - name: Check the staged PortableForge reference in Chrome
+      - name: Check the staged references in Chrome
         run: |
           google-chrome --version
           node tools/verify-reference.mjs --root _site
+          node tools/verify-workspace.mjs --root _site
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:

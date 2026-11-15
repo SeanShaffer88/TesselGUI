@@ -72,6 +72,7 @@ test('CSS and machine-readable palette agree across fallback, OKLCH, and System 
     ['control-gap', `${tokens.space.controlGap}px`], ['group-gap', `${tokens.space.relatedGroupGap[1]}px`],
     ['section-gap', `${tokens.space.sectionGap}px`],
     ['touch-target', `${tokens.density.touchControlMinWidth}px`],
+    ['radial-size', `${tokens.progress.size.webRem}rem`], ['radial-stroke', `${tokens.progress.stroke.value}px`],
     ['motion-short', `${tokens.motion.shortTransition}ms`], ['motion-panel', `${tokens.motion.panelTransition}ms`],
   ]) assert.ok(css.includes(`--${name}: ${value};`), name);
   for (const [name, role] of Object.entries(tokens.surfaceAliases)) {
@@ -93,7 +94,7 @@ test('dark surface levels keep their documented relative luminance step in both 
 
 test('appearance presets recolor the accent, primary action, selection and focus with usable contrast', () => {
   const exported = JSON.parse(readFileSync(new URL('../dist/tessel.tokens.json', import.meta.url), 'utf8'));
-  const roles = ['accent', 'action', 'actionHover', 'actionPressed', 'selectionIndicator', 'focus'];
+  const roles = ['accent', 'action', 'actionHover', 'actionPressed', 'selectionIndicator', 'focus', 'progress'];
   assert.equal(tokens.appearanceAccents.default, 'carmine');
   assert.doesNotMatch(css, /\[data-accent=carmine\]/);
   for (const id of ['github', 'crimson', 'blue', 'teal', 'graphite']) {
@@ -108,7 +109,7 @@ test('appearance presets recolor the accent, primary action, selection and focus
         ['light', light, `${selector}[data-theme=light]`],
         ['light', light, `${selector}[data-theme=system]`],
       ]) {
-        const declared = colors[theme];
+        const declared = { ...colors[theme], progress: colors[theme].selectionIndicator };
         const declarations = roles.map(role => `--${cssName(role)}: ${declared[role]};`).join(' ');
         assert.ok(css.includes(`${scope} { ${declarations} }`), `${id} ${theme} declarations`);
         const { selectionIndicator, focus } = declared;
@@ -117,6 +118,7 @@ test('appearance presets recolor the accent, primary action, selection and focus
         for (const surface of surfaces) {
           assert.ok(ratio(selectionIndicator, surface) >= 3, `${id} ${theme} selection on ${surface}`);
           assert.ok(ratio(focus, surface) >= 3, `${id} ${theme} focus on ${surface}`);
+          assert.ok(ratio(declared.progress, surface) >= 3, `${id} ${theme} progress on ${surface}`);
         }
         const { actionLabelMinimum, actionHoverLabelMinimum } = actionTargets();
         assert.ok(ratio(palette.actionForeground, declared.action) >= actionLabelMinimum, `${id} ${theme} action label`);
@@ -135,7 +137,8 @@ test('appearance presets recolor the accent, primary action, selection and focus
     }
     for (const theme of ['dark', 'light']) {
       for (const role of roles) {
-        assert.equal(exported.color.accentPresets[id][theme][role].$value.hex, preset[theme][role].toLowerCase());
+        const color = preset[theme][role === 'progress' ? 'selectionIndicator' : role];
+        assert.equal(exported.color.accentPresets[id][theme][role].$value.hex, color.toLowerCase());
       }
     }
   }
@@ -153,8 +156,6 @@ test('the deep accent matches the brand swatch and preserves label contrast', ()
     [tokens.color, '#960018'], [tokens.colorOklch.dark, '#960018'],
     [tokens.lightColor, '#960018'], [tokens.colorOklch.light, '#960018'],
   ]) {
-    // Revision 3: the deep accent is Carmine, the same color as the selection
-    // indicator and the dark focus outline; geometry tells the roles apart.
     assert.ok(ratio(palette.accentForeground, palette.accent) >= 5);
     assert.ok(linearSrgb(palette.accent).every((channel, i) =>
       Math.abs(channel - linearSrgb(expected)[i]) < 1e-6));
@@ -170,15 +171,10 @@ test('both themes preserve unrounded text, primary, semantic, focus, and boundar
     };
     for (const background of ['background', 'surface', 'raised']) {
       for (const text of ['foreground', 'muted', 'info', 'warning', 'success', 'danger']) {
-        // Revision 3 muted rule: dark muted reaches 4.5 on the background and
-        // surface, and 4.36 on raised, which carries short labels only.
-        requireRatio(text, background, dark && text === 'muted' && background === 'raised' ? 4.3 : 4.5);
+        requireRatio(text, background, 4.5);
       }
       for (const indicator of ['selectionIndicator', 'focus', 'border', 'progress']) {
-        // Carmine indicators in the dark theme follow the accent indicator
-        // rule in tokens.contrast: never the only cue, floor 1.35.
-        requireRatio(indicator, background, dark && ['selectionIndicator', 'focus'].includes(indicator)
-          ? tokens.contrast.accentIndicatorMinimum : 3);
+        requireRatio(indicator, background, tokens.contrast.accentIndicatorMinimum);
       }
     }
     const { actionLabelMinimum, actionHoverLabelMinimum } = actionTargets();
@@ -190,7 +186,7 @@ test('both themes preserve unrounded text, primary, semantic, focus, and boundar
         // The dark primary fill is Carmine: the border rim, not fill contrast,
         // bounds it against the surfaces.
         requireRatio('border', 'action', 1.5);
-        requireRatio('action', background, tokens.contrast.accentIndicatorMinimum);
+        requireRatio('action', background, tokens.contrast.darkActionSurfaceMinimum);
       } else {
         // The light primary fill is its own 3:1 boundary, so it needs no rim.
         requireRatio('action', background, tokens.contrast.actionSurfaceMinimum);
@@ -201,13 +197,11 @@ test('both themes preserve unrounded text, primary, semantic, focus, and boundar
       const [gridMin, gridMax] = tokens.contrast.gridRange;
       assert.ok(grid >= gridMin && grid <= gridMax, `grid vs ${background}: ${grid}`);
     }
-    // Text drawn over the decorative grid keeps full contrast; dark muted over
-    // the grid follows the muted floor documented in tokens.contrast.
     for (const text of ['foreground', 'muted', 'info', 'warning', 'success', 'danger']) {
-      requireRatio(text, 'grid', dark && text === 'muted' ? 4.0 : 4.5);
+      requireRatio(text, 'grid', 4.5);
     }
-    for (const indicator of ['selectionIndicator', 'focus', 'border']) {
-      requireRatio(indicator, 'grid', dark && indicator !== 'border' ? tokens.contrast.accentIndicatorMinimum : 3);
+    for (const indicator of ['selectionIndicator', 'focus', 'border', 'progress']) {
+      requireRatio(indicator, 'grid', tokens.contrast.accentIndicatorMinimum);
     }
   }
 });
@@ -236,25 +230,18 @@ test('state fills and indicators that mean different things stay distinguishable
     requireRatio('actionHover', 'action', distinctFillMinimum);
     requireRatio('actionPressed', 'action', distinctFillMinimum);
     requireRatio('actionPressed', 'actionHover', distinctFillMinimum);
-    // A focused selected item shows two cues, not one. In the dark theme the
-    // two cues are geometric: revision 3 uses the same Carmine for the focus
-    // outline and the selection bar, told apart by shape and position.
-    if (palette === tokens.color || palette === tokens.colorOklch.dark) {
-      assert.equal(palette.focus, palette.selectionIndicator);
-    } else {
-      requireRatio('focus', 'selectionIndicator', focusSelectionMinimum);
-    }
+    requireRatio('focus', 'selectionIndicator', focusSelectionMinimum);
     // Selection reads as a fill change, not only through its marker.
     requireRatio('selected', 'surface', selectedFillMinimum);
     requireRatio('selected', 'raised', distinctFillMinimum);
-    // Content and focus remain legible on the selected fill. Dark muted on
-    // the selected fill measures 3.98 (short labels only, per the muted rule).
-    const dark = palette === tokens.color || palette === tokens.colorOklch.dark;
     for (const text of ['foreground', 'muted', 'info', 'warning', 'success', 'danger']) {
-      requireRatio(text, 'selected', dark && text === 'muted' ? 3.9 : 4.5);
+      requireRatio(text, 'selected', 4.5);
     }
-    for (const indicator of ['selectionIndicator', 'focus', 'border']) {
-      requireRatio(indicator, 'selected', dark && indicator !== 'border' ? tokens.contrast.accentIndicatorMinimum : 3);
+    for (const indicator of ['selectionIndicator', 'focus', 'border', 'progress']) {
+      requireRatio(indicator, 'selected', tokens.contrast.accentIndicatorMinimum);
+    }
+    for (const indicator of ['selectionIndicator', 'focus', 'progress']) {
+      requireRatio(indicator, 'selectedStrong', tokens.contrast.accentIndicatorMinimum);
     }
   }
 });
@@ -266,10 +253,8 @@ test('the viewport surround is neutral and keeps text and indicators legible', (
     for (const text of ['foreground', 'muted', 'info', 'warning', 'success', 'danger']) {
       assert.ok(ratio(palette[text], palette.surround) >= 4.5, `${text} on the surround`);
     }
-    for (const indicator of ['selectionIndicator', 'focus', 'border']) {
-      const dark = palette === tokens.color || palette === tokens.colorOklch.dark;
-      const minimum = dark && indicator !== 'border' ? tokens.contrast.accentIndicatorMinimum : 3;
-      assert.ok(ratio(palette[indicator], palette.surround) >= minimum, `${indicator} on the surround`);
+    for (const indicator of ['selectionIndicator', 'focus', 'border', 'progress']) {
+      assert.ok(ratio(palette[indicator], palette.surround) >= tokens.contrast.accentIndicatorMinimum, `${indicator} on the surround`);
     }
   }
 });
@@ -307,10 +292,7 @@ test('fill and data-list rules are consistent with density, edge and selection t
     for (const surface of ['background', 'surface', 'raised', 'selected']) {
       assert.ok(ratio(palette.edge, palette[surface]) >= contrast.edgeMinimum, `${name} gridlines on ${surface}`);
     }
-    // The bar is the Carmine selection indicator: in the dark theme it follows
-    // the accent indicator rule; in the light theme it reaches 3:1.
-    const barMinimum = name === 'dark' ? contrast.accentIndicatorMinimum : 3;
-    assert.ok(ratio(palette[dataList.selected.bar], palette[dataList.selected.fill]) >= barMinimum, `${name} selected bar on selected row`);
+    assert.ok(ratio(palette[dataList.selected.bar], palette[dataList.selected.fill]) >= contrast.accentIndicatorMinimum, `${name} selected bar on selected row`);
     assert.ok(ratio(palette[dataList.selected.fill], palette.surface) > 1, `${name} selected row differs from the surface`);
   }
 });
