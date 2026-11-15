@@ -1,8 +1,8 @@
 # TesselGUI
 
-A futuristic, minimal interface standard for desktop software of any kind: dark charcoal, one deep Carmine accent, a fine grid, in dark and light.
+TesselGUI is a design standard for dense desktop interfaces. It pairs near-black charcoal surfaces and a deep red accent with a task-sized workspace, contextual drawers, and radial progress.
 
-[![Validation status](https://github.com/SeanShaffer88/TesselGUI/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/SeanShaffer88/TesselGUI/actions/workflows/validate.yml) · [Live demo](https://seanshaffer88.github.io/TesselGUI/demo/) · [Category layouts](https://seanshaffer88.github.io/TesselGUI/demo/categories/) · [Contrast checker](https://seanshaffer88.github.io/TesselGUI/demo/contrast/) · [Quick reference](docs/quick-reference.md) · Docs [CC BY 4.0](LICENSE) · Code and tokens [MIT](LICENSE-CODE)
+[Master Specification & AI Implementation Prompt](docs/master-specification.md) · [Design mockup](assets/mockups/tessel-master-spec.svg) · Docs [CC BY 4.0](LICENSE) · Code and tokens [MIT](LICENSE-CODE)
 
 > [!NOTE]
 > Tessel is for engineers and designers building desktop-class editors,
@@ -10,42 +10,23 @@ A futuristic, minimal interface standard for desktop software of any kind: dark 
 > and system settings. It specifies the tokens, regions, density and behavior
 > needed for long sessions in high-density interfaces.
 
-**Contents** · [Revision 3](#revision-3) · [Six rules](#six-rules) · [See it](#see-it) · [Any category](#any-category) · [Adopt Tessel](#adopt-tessel) · [Open questions](#open-questions)
+**Contents** · [Design standard](#design-standard) · [Reference demos](#reference-demos) · [Any category](#any-category) · [Adopt Tessel](#adopt-tessel)
 
-## Revision 3
+## Design standard
 
-A futuristic, minimal standard inspired by Tron Legacy and The Matrix. Dark
-charcoal, near-black surfaces (editor background `#1B1B1D`, panels `#232326`),
-soft off-white text, and one deep, restrained Carmine accent (`#960018`) used
-sparingly: the primary action fill, a thin underline on the active tab, a thin
-edge on selected text and rows, a small indicator in the near-black status
-bar, and a thin focus outline. Syntax is muted — teal keywords, sage strings,
-warm-gray numbers — and a fine square grid (`#28282B`) shows in empty areas
-and fades behind code. The interface is compact with minimal padding, set in
-a clean modern sans-serif with a classic monospace for code. Carmine is
-restrained by design, so it is never the only cue; the trade-off and the
-measured values are stated in the [materials guide](docs/materials.md). The
-revision 2 GitHub scheme survives as the GitHub preset. See the
-[changelog](CHANGELOG.md) and [migration notes](docs/migration.md).
+Use a High Contrast VS Code baseline with a bespoke deep red accent. Give the active task the space it needs and let supporting modules fill the viewport along balanced alignment axes. Keep secondary tools in drawers that open toward the nearest usable screen edge. Use a fine grid in empty areas, tokenized surface levels, compact type, and radial progress with a visible percentage when known.
 
-## Six rules
+![Concept showing the editor with the settings drawer closed and open, with a labeled radial progress indicator in both states.](assets/mockups/tessel-master-spec.svg)
 
-1. **One dominant region** per view, 55–70% wide. Supporting regions 20–35%.
-2. **One accent element per region**: primary action, selection marker, or active-region rule.
-3. **Edges build structure.** A 1px `edge` between compartments. Fills mark hover and selection.
-4. **Density follows the component.** Rows, trees and toolbars Compact. Forms, dialogs and navigation Comfortable.
-5. **Keyboard first.** Every task has a path, shortcuts are visible, Ctrl/⌘+K opens commands.
-6. **Static and honest.** No ambient motion. Real status, real cancel, text with every color.
+## Reference demos
 
-[One-page quick reference](docs/quick-reference.md) · [Full guidelines](docs/design-guidelines.md)
-
-## See it
+The live demos, token exports, and example layouts below reflect the Revision 3 implementation. The master specification governs new implementations. [Live demo](https://seanshaffer88.github.io/TesselGUI/demo/) · [Contrast checker](https://seanshaffer88.github.io/TesselGUI/demo/contrast/) · [Revision 3 quick reference](docs/quick-reference.md) · [Validation status](https://github.com/SeanShaffer88/TesselGUI/actions/workflows/validate.yml)
 
 <p align="center">
-  <img src="assets/tessel-workspace.png" alt="The Tessel reference workspace in the dark theme: navigation, task table with a selected row, details inspector, segmented progress and a green primary action" width="100%">
+  <img src="assets/tessel-workspace.png" alt="The Tessel reference workspace in the dark theme: navigation, task table with a selected row, details inspector, segmented progress and a Start simulation button" width="100%">
 </p>
 
-*Screenshot of the running [reference workspace](https://seanshaffer88.github.io/TesselGUI/demo/), dark theme.*
+*Revision 3 dark-theme screenshot of the running [reference workspace](https://seanshaffer88.github.io/TesselGUI/demo/).*
 
 ## Any category
 
@@ -53,7 +34,7 @@ revision 2 GitHub scheme survives as the GitHub preset. See the
   <img src="assets/tessel-categories.png" alt="Eight dark-theme layouts built from the same tokens: data, editor, media, monitoring, wizard, communication, CAD, settings" width="70%">
 </p>
 
-*Screenshot of the [category demo](https://seanshaffer88.github.io/TesselGUI/demo/categories/).* The same tokens and rules cover data and records, editors, media, monitoring, wizards, communication, CAD and system tools. Only the dominant region changes. See [category layouts](docs/categories.md).
+*Revision 3 screenshot of the [category demo](https://seanshaffer88.github.io/TesselGUI/demo/categories/).* The same tokens and rules cover data and records, editors, media, monitoring, wizards, communication, CAD and system tools. Only the dominant region changes. See [category layouts](docs/categories.md).
 
 ## Applied to different programs
 
@@ -61,7 +42,7 @@ revision 2 GitHub scheme survives as the GitHub preset. See the
   <img src="assets/mockups/tessel-slideshow.gif" alt="Slideshow of eight dark-theme Tessel mockups: a spreadsheet, a file and folder compare tool, a music production suite, an image editor, a video editor, a code editor, an installed-programs manager and a monitoring console" width="90%">
 </p>
 
-*Slideshow of the mockups below, 3 seconds each. Click any entry to open its full-size image. All programs, names and data are fictional.*
+*Slideshow of the Revision 3 mockups below, 3 seconds each. Click any entry to open its full-size image. All programs, names and data are fictional.*
 
 | Program type | What the design does | Mockup |
 | --- | --- | --- |
@@ -99,18 +80,7 @@ See [workspace patterns](docs/workspaces.md) for modes, panels, value controls, 
 Cross-cutting rules: [motion](docs/motion.md), [typography](docs/typography.md), [shortcuts and the command palette](docs/shortcuts.md), [feedback patterns](docs/feedback.md), [focus rings](docs/focus-rings.md), [tabs, trees and breadcrumbs](docs/navigation.md), [status bar](docs/status-bar.md), [empty, loading and error states](docs/states.md), [command palette registry](docs/command-palette.md), [layouts and docking](docs/layouts.md), [infinite canvas](docs/canvas.md) and [undo and inline feedback](docs/undo-and-feedback.md).
 
 
-## Design decisions
-
-| Principle | Decision |
-| --- | --- |
-| Density has rhythm | 6 CSS px minimum between distinct grouped controls, 8 default, 12–16 between groups, 24 between sections |
-| Density is per component | Compact rows (28) and controls (32) for repeated work. Comfortable (36/40) for forms and dialogs. Touch (48). [Density](docs/design-guidelines.md#density) |
-| The current task fits | Windows, dialogs, forms and wizard pages fit without scrollbars. Data containers scroll inside their own bounded viewport. The main window never scrolls |
-| The accent is scarce | Primary action Carmine `#960018` with a white label and a border rim. Deep Carmine only for large tinted regions with a marker. [Accent roles](docs/materials.md#accent-roles) |
-| Edges carry structure | Three dark-charcoal surface levels mark state. A 1px `edge` (`#43434A`) separates compartments |
-| The grid has a job | A fine 24 px grid visible in empty areas and fading behind code, ten-segment progress, and a 2px active-region rule. [Grid signature](docs/materials.md#grid-signature) |
-| Presets recolor the whole accent | Carmine is the default. GitHub, Crimson, Blue, Teal and the neutral Graphite change the primary action, selection, focus and deep accent together |
-| Keyboard access starts at the surface | Logical Tab order, visible focus, Commands on Ctrl/⌘+K |
+## Accessibility
 
 Tessel targets [WCAG 2.2 AA](https://www.w3.org/TR/WCAG22/), including 4.5:1
 contrast for normal text. The 44 × 44 CSS px touch policy is separate from AA's
@@ -120,22 +90,11 @@ keyboard, screen-reader and reduced-motion testing in your application.
 
 ## Adopt Tessel
 
-- Start with the [quick reference](docs/quick-reference.md), then the [design guidelines](docs/design-guidelines.md) and [component usage](docs/components.md).
-- Pick a layout in [category layouts](docs/categories.md). For multi-mode creative tools, add [workspaces](docs/workspaces.md) and review against the [polish checklist](docs/polish.md).
-- Use the [CSS custom properties](demo/tokens.css) or [JSON tokens](docs/tokens.json). Choose states with the [materials guide](docs/materials.md).
-- Adopting the standard in a project: [adoption guide](docs/adoption.md).
-- Native apps: take a generated export from [`dist/`](dist/): [DTCG JSON](dist/tessel.tokens.json), [WinUI 3](dist/Tessel.xaml), WPF [dark](dist/Tessel.Dark.xaml)/[light](dist/Tessel.Light.xaml), [Rust](dist/tessel.rs), [Slint](dist/Tessel.slint) and [Godot](dist/tessel_tokens.gd). Also [WPF High Contrast](dist/Tessel.HighContrast.xaml), the [npm package](packages/npm/) and the [Rust crate](packages/rust/). All are generated from `docs/tokens.json` by `node tools/build-tokens.mjs`. Updating from an earlier release: [migration notes](docs/migration.md).
-- Use the [compact workflow recipes](docs/workflow-recipes.md) for forms, review paging, progress and recovery, or try the [PortableForge reference](https://seanshaffer88.github.io/TesselGUI/demo/portableforge/).
-- Run the demos with the [local setup](demo/README.md).
-- Read the [changelog](CHANGELOG.md), [audit](AUDIT.md), [contribution guide](CONTRIBUTING.md), [credits](CREDITS.md) and [attribution](ATTRIBUTION.md).
+- Start with the [master specification](docs/master-specification.md). Check layout and keyboard behavior in the target application. [Verification guide](docs/verification.md)
+- Refer to the Revision 3 descriptions for prior component and category examples. [Adoption guide](docs/adoption.md) · [Design guidelines](docs/design-guidelines.md) · [Component usage](docs/components.md)
+- Existing Revision 3 integrations can use the [CSS custom properties](demo/tokens.css), [JSON tokens](docs/tokens.json), [native exports](dist/), [npm package](packages/npm/), or [Rust crate](packages/rust/).
+- Explore the Revision 3 [compact workflow recipes](docs/workflow-recipes.md), try the [PortableForge reference](https://seanshaffer88.github.io/TesselGUI/demo/portableforge/), or run the [demos locally](demo/README.md).
+- [Audit](AUDIT.md) · [Contributing](CONTRIBUTING.md) · [Credits](CREDITS.md) · [Attribution](ATTRIBUTION.md)
 
 For the maintainer's projects, plan adoption for the next scheduled release and
 show project-specific mockups for review before implementation.
-
-## Open questions
-
-- How well do the Carmine primary and selection and their supporting text or shape hold up for users with color-vision deficiencies? A simulator pass is pending.
-- Where should the density rhythm change on tablets and other touch hardware?
-- Does the grid motif need a variant for very high-contrast or monochrome displays?
-
-[Repository](https://github.com/SeanShaffer88/TesselGUI) · [Docs](docs/design-guidelines.md) · [Live demo](https://seanshaffer88.github.io/TesselGUI/demo/) · [Interaction reference](demo/README.md)

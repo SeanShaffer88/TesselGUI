@@ -1,5 +1,7 @@
 # Decisions
 
+The entries below describe earlier revisions. The master specification defines the current design standard. [Revision 4 master specification](master-specification.md)
+
 Design ideas that came up while writing revision 1, and what the standard does with each. The test: does it help a long-session tool of any category, without breaking anything else?
 
 ## Revision 2 (2026-11-10)
